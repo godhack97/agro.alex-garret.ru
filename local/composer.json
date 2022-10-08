@@ -1,5 +1,10 @@
 {
     "name": "godra/api",
+    "autoload": {
+        "psr-4": {
+            "Godra\\Api\\": "classes/"
+        }
+    },
     "description": "api for b2b",
     "authors": [
         {
