@@ -37,5 +37,7 @@ ehthumbs.db
 !/robots.txt
 
 # composer
-composer.phar
 /vendor/
+local/composer.phar
+local/vendor/*
+local/composer.json
