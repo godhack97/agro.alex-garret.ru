@@ -1,0 +1,11 @@
+{
+    "name": "godra/api",
+    "description": "api for b2b",
+    "authors": [
+        {
+            "name": "chelpuck0",
+            "email": "chelpuck0@gmail.com"
+        }
+    ],
+    "require": {}
+}
