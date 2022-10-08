@@ -3,7 +3,10 @@
     "autoload": {
         "psr-4": {
             "Godra\\Api\\": "classes/"
-        }
+        },
+        "files": [
+            "config/constants.php"
+        ]
     },
     "description": "api for b2b",
     "authors": [
@@ -12,5 +15,11 @@
             "email": "chelpuck0@gmail.com"
         }
     ],
-    "require": {}
+    "require": {},
+
+    "config": {
+        "platform": {
+            "php": "7.4.29"
+        }
+    }
 }
