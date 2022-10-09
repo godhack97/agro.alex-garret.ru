@@ -1,9 +1,44 @@
 <?
 namespace Godra\Api\Helpers\Utility;
 
-use Bitrix\Main\Application;
+use Bitrix\Main\Application,
+    Bitrix\Main\HttpRequest;
 
 class Misc {
+
+    /**
+     * Прописать заголовки
+     *
+     * @param string $type  тип заголовка json/..
+     * @return void
+     */
+    public static function setHeaders($type)
+    {
+        if($type == 'json')
+            header('content-type: application/json');
+    }
+
+    /**
+     * Получить данные из запроса Json
+     *
+     * @return array
+     */
+    public static function getPostDataFromJson()
+    {
+        return \json_decode(HttpRequest::getInput(), true);
+    }
+
+    /**
+     * массив в json
+     *
+     * @param array $php_array
+     * @return string
+     */
+    public static function phpToJson($php_array)
+    {
+        return json_decode($php_array);
+    }
+
 
     /**
      * Подключение модулей
