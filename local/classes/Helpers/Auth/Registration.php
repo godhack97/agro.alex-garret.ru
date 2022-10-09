@@ -24,7 +24,7 @@ class Registration
         $arFields = [
             "EMAIL"             => $data['email'],
             "LOGIN"             => $data['login'],
-            "ACTIVE"            => "Y",
+            "ACTIVE"            => "N",
             "GROUP_ID"          => 1,
             "PASSWORD"          => $data['password'],
             "CONFIRM_PASSWORD"  => $data['confirm_password'],
