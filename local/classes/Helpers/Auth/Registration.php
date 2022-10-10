@@ -1,8 +1,7 @@
 <?
 namespace Godra\Api\Helpers\Auth;
 
-use \Bitrix\Main\UserTable,
-    \Godra\Api\Services\Form,
+use \Godra\Api\Services\Form,
     \Godra\Api\Helpers\Utility\Misc;
 
 class Registration
