@@ -27,10 +27,16 @@ class Route
         if(self::$methods[$link])
             return self::formatEventName(self::$methods[$link]);
         else
-            return 'Error, methods '.$link.' is undefined';
+            return ['errors' => 'Error, methods '.$link.' is undefined'];
     }
 
-    protected static function formatEventName($method_path_array)
+    /**
+     * Метод хелпер для вызова метода из элементов массива [name::class, method]
+     *
+     * @param array $method_path_array [name::class, method]
+     * @return string
+     */
+    protected static function formatEventName(array $method_path_array)
 	{
 		$strName = '';
 

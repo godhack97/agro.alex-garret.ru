@@ -7,15 +7,30 @@ use Bitrix\Main\Application,
 class Misc {
 
     /**
+     * Проверяет текущий путь, api запрос это или нет
+     *
+     * @param string $requestPage путь к текущей странице
+     * @return void
+     */
+    public static function checkRequestPage($requestPage)
+    {
+        return (strpos($requestPage, 'api') != false);
+    }
+
+
+    /**
      * Прописать заголовки
      *
-     * @param string $type  тип заголовка json/..
+     * @param string $type  тип заголовка json/200..
      * @return void
      */
     public static function setHeaders($type)
     {
         if($type == 'json')
             header('content-type: application/json');
+
+        if($type == '200')
+            header("HTTP/1.1 200 OK");
     }
 
     /**
