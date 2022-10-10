@@ -45,18 +45,19 @@ class Form
             $question_type = $this->form['answers'][$key][0]['FIELD_TYPE'];
             $question_html_id = 'form_'.$question_type.'_'.$question['ID'];
 
-            $result_data[$question_html_id] = $this->form['result'][$question['SID']];
+            if($this->form['result'][$question['SID']])
+                $result_data[$question_html_id] = $this->form['result'][$question['SID']];
         }
 
-        $response['errors'] = \array_merge(
-            $this->result['errors'],
-            \CForm::Check($this->form['id'], $result_data)
-        );
+        $this->result['errors'] = array_merge([
+            \CForm::Check($this->form['id'], $result_data),
+            $this->result['errors']
+        ]);
 
-        if(empty($response['errors']))
+        if(empty($this->result['errors']))
             \CFormResult::Add($this->form['id'], $result_data, 'Y', 0);
 
-        return $response;
+        return $this->result;
     }
 
 
