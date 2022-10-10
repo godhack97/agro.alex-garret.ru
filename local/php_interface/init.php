@@ -1,4 +1,5 @@
 <?
+
 use Bitrix\Main\Application,
     Godra\Api\Routing\Route,
     Godra\Api\Helpers\Utility\Misc,
@@ -16,9 +17,10 @@ if(Misc::checkRequestPage($requestPage))
     // Заголовки для отдачи Json
     Misc::setHeaders('json');
     Misc::setHeaders('200');
+    Misc::setHeaders('mandatory');
 
     echo \json_encode( is_callable($method) ? $method() : Errors::notMethod(), JSON_UNESCAPED_UNICODE);
 
-    die();
+    exit;
 }
 ?>

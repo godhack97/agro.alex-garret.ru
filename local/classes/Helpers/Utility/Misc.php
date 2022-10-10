@@ -21,7 +21,7 @@ class Misc {
     /**
      * Прописать заголовки
      *
-     * @param string $type  тип заголовка json/200..
+     * @param string $type  тип заголовка json/200/mandatory..
      * @return void
      */
     public static function setHeaders($type)
@@ -30,7 +30,13 @@ class Misc {
             header('content-type: application/json');
 
         if($type == '200')
-            header("HTTP/1.1 200 OK");
+        {
+            header('HTTP/2 200 OK');
+            header('Status: 200 OK');
+        }
+
+        if($type == 'mandatory')
+            header("Access-Control-Allow-Origin: *");
     }
 
     /**
