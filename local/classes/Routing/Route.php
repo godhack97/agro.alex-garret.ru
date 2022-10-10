@@ -12,7 +12,7 @@ class Route
      */
     protected static $methods = [
         '/api/auth' => [Auth\Authorisation::class, 'authByPassword'],
-        '/api/register' => [Auth\Registration::class, 'registerByPassword'],
+        '/api/register' => [Auth\Registration::class, 'registerByForm'],
         '/api/restorepassword' => [Auth\Restore::class, 'restorePassword'],
     ];
 

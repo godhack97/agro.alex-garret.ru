@@ -2,18 +2,22 @@
 namespace Godra\Api\Helpers\Auth;
 
 use \Bitrix\Main\UserTable,
+    \Godra\Api\Services\Form,
     \Godra\Api\Helpers\Utility\Misc;
 
 class Registration
 {
     protected static $data_rows = [
-        'password',
-        'password_confirm',
+        'company_name',
+        'inn',
         'login',
+        'region',
+        'phone',
+        'password',
         'email',
     ];
 
-    public function registerByPassword()
+    public static function registerByPassword()
     {
         $data = Misc::getPostDataFromJson();
 
@@ -27,13 +31,20 @@ class Registration
             "ACTIVE"            => "N",
             "GROUP_ID"          => 1,
             "PASSWORD"          => $data['password'],
-            "CONFIRM_PASSWORD"  => $data['confirm_password'],
+            "CONFIRM_PASSWORD"  => $data['password'],
         ];
 
         $user = new \CUser;
         $new_user_id = $user->Add($arFields);
 
         return $new_user_id ?: $new_user_id->LAST_ERROR;
+    }
+
+    public static function registerByForm()
+    {
+        $data = Misc::getPostDataFromJson();
+
+        return (new Form(REGISTRATION_FORM_SID, $data))->addResult();
     }
 }
 ?>
