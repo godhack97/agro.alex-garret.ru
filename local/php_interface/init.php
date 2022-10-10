@@ -23,4 +23,20 @@ if(Misc::checkRequestPage($requestPage))
 
     exit;
 }
+/*
+Пример пост регистрации
+
+fetch('/api/register',{
+    method: 'post',
+      body: JSON.stringify({
+      inn: 'inn',
+      login: 'login',
+      company_name: 'company_name',
+      region: 'region',
+      phone: 'phone',
+      email: 'email',
+    })
+  })
+
+*/
 ?>
