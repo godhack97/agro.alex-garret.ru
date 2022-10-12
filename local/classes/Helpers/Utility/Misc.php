@@ -2,7 +2,8 @@
 namespace Godra\Api\Helpers\Utility;
 
 use Bitrix\Main\Application,
-    Bitrix\Main\HttpRequest;
+    Bitrix\Main\HttpRequest,
+    Bitrix\Main\Web\HttpClient;
 
 class Misc {
 
@@ -37,11 +38,11 @@ class Misc {
 
         if($type == 'mandatory')
         {
-            header("Access-Control-Allow-Origin: *");
-            header("Access-Control-Max-Age: 3600");
-            header("Access-Control-Allow-Headers: access");
-            header("Access-Control-Allow-Methods: POST");
-            header("Access-Control-Allow-Credentials: true");
+            header('Access-Control-Allow-Origin: '.$_SERVER['HTTP_ORIGIN']);
+            header('Access-Control-Allow-Credentials: true');
+            header('Content-Type: application/json');
+            header("Access-Control-Allow-Methods: *");
+            header("Access-Control-Allow-Headers: *");
         }
     }
 

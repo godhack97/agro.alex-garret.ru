@@ -1,7 +1,10 @@
 <?
 namespace Godra\Api\Routing;
 
-use \Godra\Api\Helpers\Auth;
+use \Godra\Api\Helpers\Auth,
+    \Godra\Api;
+
+
 
 class Route
 {
@@ -11,9 +14,26 @@ class Route
      * @var array
      */
     protected static $methods = [
+        // авторизация по логин/пароль
         '/api/auth' => [Auth\Authorisation::class, 'authByPassword'],
+
+        // проверка авторизации
+        '/api/isauth' => [Auth\Authorisation::class, 'isAuth'],
+
+        // регистрация по форме
         '/api/register' => [Auth\Registration::class, 'registerByForm'],
-        '/api/restorepassword' => [Auth\Restore::class, 'restorePassword'],
+
+        // Логаут
+        '/api/logout' => [Auth\Logout::class, 'logoutSelfUser'],
+
+        // Восстановить пароль |шаг 1| для получения проверочного кода
+        '/api/restore_password' => [Auth\Restore::class, 'forEmailOrPhone'],
+
+        // поменять пароль |шаг 2| используя код из шага 1
+        '/api/change_password' => [Auth\Restore::class, 'changePassword'],
+
+        // получить контакты
+        '/api/get_contacts' => [Api\Information\Contacts::class, 'getList'],
     ];
 
     /**
