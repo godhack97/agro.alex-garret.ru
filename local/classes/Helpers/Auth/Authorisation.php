@@ -7,36 +7,28 @@ use     \Bitrix\Main\Context,
 
 class Authorisation extends Base
 {
-    protected static $data_rows = [
+    protected $data_rows = [
         'login',
         'password'
     ];
 
-    public static function isAuth()
+    public function isAuth()
     {
-        global $USER;
-        if (!is_object($USER)) $USER = new \CUser;
-
-        return (bool) $USER->IsAuthorized();
+        return (bool) $this->cuser->IsAuthorized();
     }
 
-    public static function authByPassword()
+    public function authByPassword()
     {
-        global $USER;
-        if (!is_object($USER)) $USER = new \CUser;
-
-        $data = Misc::getPostDataFromJson();
-
-        if($USER->IsAuthorized())
+        if($this->cuser->IsAuthorized())
             $result['errors'][] = 'Вы уже авторизованы';
         else
         {
             // попытка авторизаци
-            $auth = $USER->Login(self::getDataByLogin($data['login']), $data['password'], "Y", "Y");
+            $auth = $this->cuser->Login($this->getDataByLogin($this->data['login']), $this->data['password'], "Y", "Y");
 
             // проверка полей
-            foreach (self::$data_rows as $row)
-                if(!$data[$row])
+            foreach ($this->data_rows as $row)
+                if(!$this->data[$row])
                     $result['errors'][] = 'Заполните '.$row;
 
             // ошибки авторизации
@@ -49,15 +41,12 @@ class Authorisation extends Base
         return $result;
     }
 
-    public static function preAuthByCookieHash()
+    public function preAuthByCookieHash()
     {
-        global $USER;
-        if (!is_object($USER)) $USER = new \CUser;
-
         $cookie_login = ${\COption::GetOptionString("main", "cookie_name", "BITRIX_SM")."_LOGIN"};
         $cookie_md5pass = ${\COption::GetOptionString("main", "cookie_name", "BITRIX_SM")."_UIDH"};
 
-        $USER->LoginByHash($cookie_login, $cookie_md5pass);
+        $this->cuser->LoginByHash($cookie_login, $cookie_md5pass);
 
         Context::getCurrent()->getResponse()->writeHeaders();
     }

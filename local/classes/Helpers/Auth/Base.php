@@ -8,7 +8,28 @@ use \Bitrix\Main\UserTable,
 class Base
 {
 
-    public static function getPhoneByEmail($email)
+    protected $data;
+    protected $cuser;
+    protected $data_rows = [
+        'login',
+        'password',
+        'code'
+    ];
+
+    function __construct()
+    {
+        global $USER;
+
+        $this->cuser = $USER;
+        $this->data  = Misc::getPostDataFromJson();
+    }
+
+    public function getMap()
+    {
+        return $this->data_rows;
+    }
+
+    public function getPhoneByEmail($email)
     {
         $user = UserTable::getList([
             'select' => ['ID'],
@@ -32,7 +53,7 @@ class Base
      * @param string $email_or_phone email или телефон пользователя
      * @return string
      */
-    public static function getDataByLogin($email_or_phone, $row_name = 'LOGIN')
+    public function getDataByLogin($email_or_phone, $row_name = 'LOGIN')
     {
         Misc::includeModules(['main']);
 
@@ -73,9 +94,9 @@ class Base
         return $res;
     }
 
-    public static function checkConfirmCode($login, $code)
+    public function checkConfirmCode($login, $code)
     {
-        return ($code == self::getDataByLogin($login, 'UF_CONFIRM_CODE'));
+        return ($code == $this->getDataByLogin($login, 'UF_CONFIRM_CODE'));
     }
 
     /**
@@ -84,17 +105,13 @@ class Base
      * @param string $login телеон или почта
      * @return void
      */
-    public static function changePassword()
+    public function changePassword()
     {
-        global $USER;
-
-        if (!is_object($USER)) $USER = new \CUser;
-
         $data = Misc::getPostDataFromJson();
 
-        if(self::checkConfirmCode($data['login'], $data['code']) /*AND $_SESSION['CONFIRM_CODE']*/)
+        if($this->checkConfirmCode($data['login'], $data['code']))
         {
-            $id = self::getDataByLogin($data['login'], 'ID');
+            $id = $this->getDataByLogin($data['login'], 'ID');
             $user = new \CUser;
             $result['success'] = $user->Update($id, [
                 'UF_CONFIRM_CODE' => rand(0000,9999),

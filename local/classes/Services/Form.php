@@ -24,6 +24,7 @@ class Form
     {
         Misc::includeModules(['form']);
 
+
         $this->form['result'] = $data;
         $this->form['id'] = \CForm::GetList($by="s_id", $order="desc", ['SID' => $sid])->fetch()['ID'];
 
@@ -33,6 +34,7 @@ class Form
 
     /**
      * Добавить результат формы
+     * принимает любые данные в $data + S_ID формы
      *
      * @return void
      */
@@ -40,6 +42,7 @@ class Form
     {
         $this->getFormData();
 
+        // обработка данных
         foreach ($this->form['questions'] as $key => $question)
         {
             $question_type = $this->form['answers'][$key][0]['FIELD_TYPE'];
@@ -49,13 +52,17 @@ class Form
                 $result_data[$question_html_id] = $this->form['result'][$question['SID']];
         }
 
-        $this->result['errors'] = array_merge([
-            \CForm::Check($this->form['id'], $result_data),
-            $this->result['errors']
-        ]);
+        // Проверка полей на валидаторы
+        $this->result['errors'] = Misc::clearArrayOfEmptyValues(
+            array_merge([
+                \CForm::Check($this->form['id'], $result_data),
+                $this->result['errors']
+            ])
+        );
 
+        // добавление результата
         if(empty($this->result['errors']))
-            \CFormResult::Add($this->form['id'], $result_data, 'Y', 0);
+            $res_id =\CFormResult::Add($this->form['id'], $result_data, 'N', 0);
 
         return $this->result;
     }

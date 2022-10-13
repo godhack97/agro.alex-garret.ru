@@ -15,9 +15,9 @@ class Errors
      *
      * @return array
      */
-    public static function notMethod()
+    public static function notMethod($method)
     {
-        self::$message['errors'][] = 'Запрашиваемого метода не существует';
+        self::$message['errors'][] = 'Запрашиваемого метода ('.$method.') не существует';
         return self::$message;
     }
 }

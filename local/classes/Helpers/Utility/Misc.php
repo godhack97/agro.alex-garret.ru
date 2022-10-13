@@ -36,6 +36,12 @@ class Misc {
             header('Status: 200 OK');
         }
 
+        if($type == '500')
+        {
+            header('HTTP/2 500 OK');
+            header('Status: 500 error');
+        }
+
         if($type == 'mandatory')
         {
             header('Access-Control-Allow-Origin: '.$_SERVER['HTTP_ORIGIN']);
@@ -54,6 +60,22 @@ class Misc {
     public static function getPostDataFromJson()
     {
         return \json_decode(HttpRequest::getInput(), true);
+    }
+
+    /**
+     * делает простую сверку полей приходящих
+     * по post с теми которые мы передадим
+     *
+     * @param array $post_data ['code'=>'123', 'name' => 'admin'...]
+     * @param array $rows ['code', 'admin' ..]
+     * @param array $errors массив куда складывать ошибки
+     * @return void
+     */
+    public static function checkRows($post_data, $rows, &$errors = [])
+    {
+        foreach ($rows as $row)
+            if(!$post_data)
+                $errors[] = 'Не указано поле '.$row;
     }
 
     /**

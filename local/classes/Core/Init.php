@@ -12,21 +12,30 @@ class Init
 {
     public static function run()
     {
+        // переменная ошибок апи
+        global $API_ERRORS;
+
         // Инициализация событий
         Events::init();
-        Authorisation::preAuthByCookieHash();
+        (new Authorisation)->preAuthByCookieHash();
         $requestPage = Application::getInstance()->getContext()->getRequest()->getRequestedPage();
 
         if(Misc::checkRequestPage($requestPage))
         {
-            $method = Route::toMethod($requestPage);
+            $object_arr = (new Route())->toMethod($requestPage);
+            $method = $object_arr[1];
 
-            echo \json_encode( is_callable($method) ? $method() : Errors::notMethod(), JSON_UNESCAPED_UNICODE);
+            \class_exists($object_arr[0]) ?
+                $result = (new $object_arr[0]())->$method():
+                $API_ERRORS[] = 'Метод не существует';
+
+            $is_err = count($API_ERRORS);
 
             // Заголовки для отдачи Json
             Misc::setHeaders('json');
-            Misc::setHeaders('200');
             Misc::setHeaders('mandatory');
+            $is_err ? Misc::setHeaders('500') : Misc::setHeaders('200');
+            echo \json_encode( $is_err ? $API_ERRORS : $result, JSON_UNESCAPED_UNICODE);
 
             die();
         }

@@ -10,7 +10,7 @@ class Contacts
      *
      * @var array
      */
-    protected static $rows = [
+    protected $rows = [
         'phone',
         'address',
         'work_time',
@@ -30,9 +30,9 @@ class Contacts
      *
      * @return void
      */
-    public static function getList()
+    public function getList()
     {
-        foreach (self::$rows as $val)
+        foreach ($this->rows as $val)
             $result[$val] = Option::get('main', 'api_'.$val);
 
         return $result;

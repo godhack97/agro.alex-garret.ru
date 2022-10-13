@@ -4,9 +4,9 @@ namespace Godra\Api\Helpers\Auth;
 use \Godra\Api\Services\Form,
     \Godra\Api\Helpers\Utility\Misc;
 
-class Registration
+class Registration extends Base
 {
-    protected static $data_rows = [
+    protected $data_rows = [
         'company_name',
         'inn',
         'login',
@@ -16,21 +16,19 @@ class Registration
         'email',
     ];
 
-    public static function registerByPassword()
+    public function registerByPassword()
     {
-        $data = Misc::getPostDataFromJson();
-
-        foreach (self::$data_rows as $row)
+        foreach ($this->data_rows as $row)
             if(!isset($data[$row]))
                 return ['error' => 'не хватает данных для поля '.$row];
 
         $arFields = [
-            "EMAIL"             => $data['email'],
-            "LOGIN"             => $data['login'],
+            "EMAIL"             => $this->data['email'],
+            "LOGIN"             => $this->data['login'],
             "ACTIVE"            => "N",
             "GROUP_ID"          => 1,
-            "PASSWORD"          => $data['password'],
-            "CONFIRM_PASSWORD"  => $data['password'],
+            "PASSWORD"          => $this->data['password'],
+            "CONFIRM_PASSWORD"  => $this->data['password'],
         ];
 
         $user = new \CUser;
@@ -39,11 +37,9 @@ class Registration
         return $new_user_id ?: $new_user_id->LAST_ERROR;
     }
 
-    public static function registerByForm()
+    public function registerByForm()
     {
-        $data = Misc::getPostDataFromJson();
-
-        return (new Form(REGISTRATION_FORM_SID, $data))->addResult();
+        return (new Form(REGISTRATION_FORM_SID, $this->data))->addResult();
     }
 }
 ?>

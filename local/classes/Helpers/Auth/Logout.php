@@ -1,14 +1,13 @@
 <?
 namespace Godra\Api\Helpers\Auth;
 
-use    \Bitrix\Main\Context;
+use \Bitrix\Main\Context;
 
-class Logout
+class Logout extends Base
 {
-    public static function logoutSelfUser()
+    public function logoutSelfUser()
     {
-        global $USER;
-        $USER->Logout();
+        $this->cuser->Logout();
         Context::getCurrent()->getResponse()->writeHeaders();
     }
 }
