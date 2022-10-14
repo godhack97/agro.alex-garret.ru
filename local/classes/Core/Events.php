@@ -10,13 +10,9 @@ class Events
     {
         $eventManager = em::getInstance();
 
+        # Глобальное меню
         $eventManager->addEventHandler(
-            "main",
-            "OnBuildGlobalMenu",
-            [
-                EventHandlers\Admin\Handler::class,
-                "addMenuItem"
-            ]
+            "main", "OnBuildGlobalMenu",[ EventHandlers\Admin\Handler::class, "addMenuItem"]
         );
     }
 }
