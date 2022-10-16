@@ -16,4 +16,10 @@ define('IBLOCK_BANNERS_API', 'banners');
 
 # апи код инфоблока с дешбордами (этапы регистрации, условия сотрудничества)
 define('IBLOCK_DASHBOARD_API', 'dashboard');
+
+# TABLE_NAME хайлоадблока с меню
+define('HIGHLOAD_MENU_ID', 'menus');
+
+# TABLE_NAME хайлоадблока с Хлебными крошками
+define('HIGHLOAD_BREADCRUMBS_ID', 'breadcrumbs');
 ?>

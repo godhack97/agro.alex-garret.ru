@@ -96,7 +96,7 @@ abstract class Base
      * @param string $iblock_api_code Апи код инфоблока
      * @return string
      */
-    protected static function getEntityName($iblock_api_code)
+    public static function getEntityName($iblock_api_code)
     {
         return '\\Bitrix\\Iblock\\Elements\\Element'.ucfirst($iblock_api_code).'Table';
     }
@@ -146,6 +146,15 @@ abstract class Base
             'filter' => $filter,
             'select' => ['ID']
         ])->fetch()['ID'] ?: false;
+    }
+
+    public static function getIblockByCode($code)
+    {
+        return \Bitrix\Iblock\IblockTable::getList([
+            'filter' => ['CODE' => $code],
+            'limit' => 1,
+            'select' => ['ID', 'NAME', 'LIST_PAGE_URL']
+        ])->fetch();
     }
 }
 ?>

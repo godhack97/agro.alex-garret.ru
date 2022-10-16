@@ -5,6 +5,8 @@ use \Godra\Api,
     \Godra\Api\Services,
     \Godra\Api\Helpers\Auth,
     \Bitrix\Main\Application,
+    \Godra\Api\HighloadBlock\Menus,
+    \Godra\Api\HighloadBlock\BreadCrumbs,
     \Godra\Api\Helpers\Utility\Misc;
 
 
@@ -23,6 +25,13 @@ class Route
     protected $methods = [
         // авторизация по логин/пароль
         '/api/map' => [Route::class, 'getMap'],
+
+        // Отдаёт меню, нужен code
+        // есть возможность собирать список разделов указав один пункт меню и в урл забив api code инфоблока
+        '/api/menu' => [Menus::class, 'get'],
+
+        // Отдаёт хлебные крошки по параметру url
+        '/api/breadcrumbs' => [BreadCrumbs::class, 'get'],
 
         // авторизация по логин/пароль
         '/api/auth' => [Auth\Authorisation::class, 'authByPassword'],
