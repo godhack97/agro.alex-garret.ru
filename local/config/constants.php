@@ -14,6 +14,9 @@ define('SMSRU_AUTH_TOKEN', '3F60DC5D-A2AC-CCF9-03F5-6B83074AD9B9');
 # апи код инфоблока с баннерами
 define('IBLOCK_BANNERS_API', 'banners');
 
+# апи код инфоблока с баннерами
+define('IBLOCK_CATALOG_API', 'catalog');
+
 # апи код инфоблока с акциями
 define('IBLOCK_STOCK_API', 'stock');
 

@@ -1,58 +1,33 @@
 <?
 namespace Godra\Api\Iblock;
 
-use Bitrix\Iblock\Elements,
-    Bitrix\Iblock\IblockTable,
-    Bitrix\Iblock\ElementTable,
+use Bitrix\Iblock\ElementTable,
     Bitrix\Iblock\SectionTable,
     Godra\Api\Helpers\Utility\Misc;
 
 abstract class Base
 {
-    /**
-     * Обязательные поля
-     *
-     * @var array
-     */
     protected static $row_data = [];
-
-    /**
-     * поля для выборки
-     * name: имя поля, если нужно алиас => имя
-     * method: метод для обработки поля псле получения
-     *
-     * @var array
-     */
     protected static $select_rows = [];
-
-
-    /**
-     * Код Апи Информационного блока
-     *
-     * @var string|boolean
-     */
     protected static $api_ib_code = false;
 
     /**
-     * Абстрактный метод реализации получения данных
+     * Поля товара для выборки
+     * name: имя поля, если нужно алиас => имя
+     * method: метод для обработки поля псле получения
+     * @var array
      */
-    abstract public static function getList();
-
-    public static function getMap()
-    {
-        return static::$row_data;
-    }
+    protected static $select_product_rows = [];
 
     /**
-     * Получить баннера по коду раздела
-     *
+     * Получить товары по коду раздела
      * @param $data['code'] $section_id_or_code
      * @return void
      */
     // Тут надо сделать условие, что если кода нет - возвращаем все эллементы
     public static function get()
     {
-        Misc::includeModules(['iblock']);
+        Misc::includeModules(['iblock', 'catalog']);
 
         // получение данных из post
         $data = Misc::getPostDataFromJson();
@@ -60,23 +35,33 @@ abstract class Base
         // Проверка входящих данных, отдаст ошибки 3й аргумент
         Misc::checkRows($data, static::$row_data, $result['errors']);
 
-        // получение элементов
+        // получение сущности
         $entity = static::getEntityName(static::$api_ib_code);
         $entity = $entity::getEntity();
 
         $select = array_column(static::$select_rows, 'name');
 
-        $select[] = 'URL';
-        $select[] = 'SECTION_NAME';
-        $select[] = 'SECTION_CODE';
-
-        $section_id  = static::getSectionByFilter(['CODE' => $data['code']]);
-        $filter = $section_id ? ['IBLOCK_SECTION_ID' => $section_id ?: 0] : [];
-
+        // Реализация новых полей
         self::addDetailPageUrlForEntity($entity);
         self::addSectionNameForEntity($entity);
         self::addSectionCodeForEntity($entity);
 
+        // Добавление доп полей в выборку
+        $select[] = 'URL';
+        $select[] = 'SECTION_NAME';
+        $select[] = 'SECTION_CODE';
+
+        $section_id  = static::getSectionByFilter(['CODE' => $data['section_code']]);
+
+        // код раздела
+        $filter = $section_id ?
+            ['IBLOCK_SECTION_ID' => $section_id] : [];
+
+        // код элемента
+        $data['element_code'] ?
+            $filter['CODE']  = $data['element_code'] : false;
+
+        // выборка
         $query = new \Bitrix\Main\Entity\Query($entity);
 
         $collection = $query
@@ -85,6 +70,7 @@ abstract class Base
         ->exec()
         ->fetchCollection();
 
+        // обработка значений
         foreach ($collection as $item)
         {
             foreach($select as $key => $name)
@@ -107,7 +93,6 @@ abstract class Base
                     $new_item[$name] = self::executeMethod($method, $new_item[$name]);
 
                 $new_item['url'] = \preg_replace('/[\/]+/m', '/', $new_item['url']);
-
             }
 
             $result['items'][] = $new_item;
@@ -116,6 +101,11 @@ abstract class Base
         return count($result['errors']) ? $result['errors'] : $result['items'];
     }
 
+    /**
+     * Добавляет сущности новое поля URL
+     * @param [type] $entity
+     * @return void
+     */
     protected function addDetailPageUrlForEntity(&$entity)
     {
         // на прозапас сделал вложенность
@@ -185,6 +175,16 @@ abstract class Base
         return $res;
     }
 
+    /**
+     * Исполнят метод переданный в виде строки с меткой для данных $val
+     * Пример {
+     *      $method = "str_replace('world', '', $val)";
+     *      $value = 'Hello world'
+     *      вернёт 'Hello';
+     * }
+     * @param string $method
+     * @param [type] $value
+     */
     protected static function executeMethod($method, $value)
     {
             if(\is_array($value))
@@ -214,40 +214,9 @@ abstract class Base
 
 
     /**
-     * Получить баннера по id раздела
-     *
-     * @param int|string $ids id раздела
-     * @return array|void
-     */
-    protected function GetBySectionIdOrCode($id_or_code)
-    {
-        Misc::includeModules(['iblock']);
-
-        $id = \is_int($id_or_code) ?
-            $id_or_code :
-            static::getSectionByFilter(['CODE' => $id_or_code]);
-
-
-        if($id)
-            $db_res = ElementTable::getList([
-                'filter' => ['IBLOCK_SECTION_ID' => $id, 'ACTIVE' => 'Y'],
-                'select' => ['ID'],
-            ])->fetchAll();
-
-        if(!count($db_res))
-            $result['errors'][] = 'Ничего не найдено';
-        else
-            $result['data'] = \array_column($db_res, 'ID');
-
-        return $result['errors'] ?: $result['data'];
-    }
-
-
-    /**
      * Получить id раздела по фильтру D7
-     *
      * @param array $filter
-     * @return void
+     * @return array|void
      */
     protected static function getSectionByFilter($filter)
     {
@@ -255,10 +224,16 @@ abstract class Base
 
         return SectionTable::getList([
             'filter' => $filter,
-            'select' => ['ID']
+            'select' => ['ID'],
+            'limit'  => []
         ])->fetch()['ID'] ?: false;
     }
 
+    /**
+     * Получить инфоблок по символьному коду
+     * @param string $code
+     * @return array|void
+     */
     public static function getIblockByCode($code)
     {
         return \Bitrix\Iblock\IblockTable::getList([

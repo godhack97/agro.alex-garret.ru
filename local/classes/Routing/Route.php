@@ -63,6 +63,12 @@ class Route
         // получить Акции
         '/api/stock/get' => [Api\Iblock\Stock::class, 'getList'],
 
+        /*----------------  Каталог START -------------------------*/
+            # получить Товары
+            '/api/catalog/get' => [Api\Catalog\Element::class, 'getList'],
+        /*----------------  Каталог END ---------------------------*/
+
+
         // получить дешборды
         '/api/dashboards/get' => [Api\Iblock\Dashboard::class, 'getList'],
     ];
