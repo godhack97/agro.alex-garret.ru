@@ -14,9 +14,7 @@ abstract class Base
      *
      * @var array
      */
-    protected static $row_data = [
-        'code'
-    ];
+    protected static $row_data = [];
 
     /**
      * поля для выборки
@@ -64,24 +62,52 @@ abstract class Base
 
         // получение элементов
         $entity = static::getEntityName(static::$api_ib_code);
-        $select = array_column(static::$select_rows, 'name');
-        $section_id  = static::getSectionByFilter(['CODE' => $data['code']]);
+        $entity = $entity::getEntity();
 
-        $collection = $entity::getList([
-            'select' => $select,
-            'filter' => ['IBLOCK_SECTION_ID' => $section_id]
-        ])->fetchCollection();
+        $select = array_column(static::$select_rows, 'name');
+
+        $select[] = 'URL';
+        $select[] = 'SECTION_NAME';
+        $select[] = 'SECTION_CODE';
+
+        $section_id  = static::getSectionByFilter(['CODE' => $data['code']]);
+        $filter = $section_id ? ['IBLOCK_SECTION_ID' => $section_id ?: 0] : [];
+
+        self::addDetailPageUrlForEntity($entity);
+        self::addSectionNameForEntity($entity);
+        self::addSectionCodeForEntity($entity);
+
+        $query = new \Bitrix\Main\Entity\Query($entity);
+
+        $collection = $query
+        ->setSelect($select)
+        ->setFilter($filter)
+        ->exec()
+        ->fetchCollection();
 
         foreach ($collection as $item)
         {
             foreach($select as $key => $name)
             {
-                $name = \strtolower($name);
                 $field  = $item->get($name);
+                $name   = static::$select_rows[$key]['alias'] ?:  \strtolower($name);
                 $method = static::$select_rows[$key]['method'];
 
-                $new_item[$name] = \is_object($field) ? $field->getValue() : $field;
-                $new_item[$name] = $method ? $method($new_item[$name]) : $new_item[$name];
+                // перебор, для случая множественного значения
+                $new_item[$name] = \is_object($field) ?
+                    (
+                        method_exists($field, 'getValue') ?
+                            $field->getValue():
+                            self::getAllValues($field)
+                    ):
+                    $field;
+
+                /** Обработка переданных методов в поле method , заменяет $val на значение, если нужен просто результат, а не определённое поле результата, то можно передать только метод */
+                if($method)
+                    $new_item[$name] = self::executeMethod($method, $new_item[$name]);
+
+                $new_item['url'] = \preg_replace('/[\/]+/m', '/', $new_item['url']);
+
             }
 
             $result['items'][] = $new_item;
@@ -90,6 +116,91 @@ abstract class Base
         return count($result['errors']) ? $result['errors'] : $result['items'];
     }
 
+    protected function addDetailPageUrlForEntity(&$entity)
+    {
+        // на прозапас сделал вложенность
+        $entity->addField(
+            new \Bitrix\Main\Entity\ExpressionField(
+                'URL',
+                '
+                CONCAT(
+                    "/", COALESCE(%s,""), "/",
+                    COALESCE(%s,""), "/",
+                    COALESCE(%s,""), "/",
+                    COALESCE(%s,""), "/",
+                    COALESCE(%s,""), "/",
+                    COALESCE(%s,""), "/",
+                    COALESCE(%s,""), "/"
+                )',
+                [
+                    'IBLOCK.CODE',
+                    'IBLOCK_SECTION.PARENT_SECTION.PARENT_SECTION.PARENT_SECTION.PARENT_SECTION.CODE',
+                    'IBLOCK_SECTION.PARENT_SECTION.PARENT_SECTION.PARENT_SECTION.CODE',
+                    'IBLOCK_SECTION.PARENT_SECTION.PARENT_SECTION.CODE',
+                    'IBLOCK_SECTION.PARENT_SECTION.CODE',
+                    'IBLOCK_SECTION.CODE',
+                    'CODE',
+                ]
+            )
+          );
+    }
+
+    protected function addSectionNameForEntity(&$entity)
+    {
+        $entity->addField(
+            new \Bitrix\Main\Entity\ExpressionField(
+                'SECTION_NAME',
+                '
+                CONCAT(
+                    COALESCE(%s,"")
+                )',
+                [
+                    'IBLOCK_SECTION.NAME',
+                ]
+            )
+          );
+    }
+
+    protected function addSectionCodeForEntity(&$entity)
+    {
+        $entity->addField(
+            new \Bitrix\Main\Entity\ExpressionField(
+                'SECTION_CODE',
+                '
+                CONCAT(
+                    COALESCE(%s,"")
+                )',
+                [
+                    'IBLOCK_SECTION.CODE',
+                ]
+            )
+          );
+    }
+
+    protected static function getAllValues($field)
+    {
+        foreach ($field as $val)
+            $res[] = $val->getValue();
+
+        return $res;
+    }
+
+    protected static function executeMethod($method, $value)
+    {
+            if(\is_array($value))
+            {
+                foreach ($value as $val)
+                    strpos($method, '$val')?
+                        eval('$arr[] = '.\str_replace('$val', $val , $method ).';'):
+                        $arr[] = $method($val);
+            }
+            else
+                strpos($method, '$val')?
+                    eval('$arr = '.\str_replace('$val', $value , $method ).';'):
+                    $arr = $method($value);
+
+        return $arr;
+    }
 
     /**
      * Простой конструктор entity name по Апи коду инфоблока

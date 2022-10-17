@@ -60,6 +60,9 @@ class Route
         // получить баннера
         '/api/banners/get' => [Api\Iblock\Banners::class, 'getList'],
 
+        // получить Акции
+        '/api/stock/get' => [Api\Iblock\Stock::class, 'getList'],
+
         // получить дешборды
         '/api/dashboards/get' => [Api\Iblock\Dashboard::class, 'getList'],
     ];
