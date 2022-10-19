@@ -23,7 +23,7 @@ class Route
      * @var array
      */
     protected $methods = [
-        // авторизация по логин/пароль
+        // даёт информацию по ожидаемым полям, принимает url метода
         '/api/map' => [Route::class, 'getMap'],
 
         // Отдаёт меню, нужен code
@@ -63,10 +63,33 @@ class Route
         // получить Акции
         '/api/stock/get' => [Api\Iblock\Stock::class, 'getList'],
 
-        /*----------------  Каталог START -------------------------*/
+        #----------------  Каталог START -------------------------#
             # получить Товары
             '/api/catalog/get' => [Api\Catalog\Element::class, 'getList'],
-        /*----------------  Каталог END ---------------------------*/
+        #----------------  Каталог END ---------------------------#
+
+        #----------------  Пользователи START --------------------#
+            # Создать пользователя
+                # Добавить проверку владения точкой
+                # Добавить проверку на суперпользователя
+            '/api/users/add' => [Api\User\Add::class, 'addUser'],
+
+            # Редактировать пользователя
+                # Добавить проверку владения точкой
+                # Добавить проверку на суперпользователя
+            '/api/users/update' => [Api\User\Update::class, 'updateUser'],
+
+            # Редактировать пользователя
+                # Добавить проверку владения точкой
+                # Добавить проверку на суперпользователя
+            '/api/users/delete' => [Api\User\Delete::class, 'deleteUser'],
+
+            # Редактировать пользователя
+                # Добавить проверку владения точкой
+                # Добавить проверку на суперпользователя
+                # Добавить выборку пользователей по контрагенту суперпользователя
+            '/api/users/get' => [Api\User\Get::class, 'GetUsers'],
+        #----------------  Пользователи END ----------------------#
 
 
         // получить дешборды
@@ -75,7 +98,7 @@ class Route
 
     function __construct()
     {
-        $this->data = $data = Misc::getPostDataFromJson();
+        $this->data = Misc::getPostDataFromJson();
         $this->cur_page  = Application::getInstance()->getContext()->getRequest()->getRequestedPage();
     }
 

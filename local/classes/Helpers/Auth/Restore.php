@@ -1,7 +1,7 @@
 <?
 namespace Godra\Api\Helpers\Auth;
 
-use \Godra\Api\Integration\Sms\SmsRu;
+use \Godra\Api\Integration\SMSSeveren\Send;
 
 class Restore extends Base
 {
@@ -26,13 +26,12 @@ class Restore extends Base
         $user->Update($id, ['UF_CONFIRM_CODE' => $_SESSION['CONFIRM_CODE']]);
 
         // формируем сообщение и отправляем
-        $sms  = new SmsRu(SMSRU_AUTH_TOKEN);
-        $data = new \stdClass();
-        $data->to = $phone;
-        $data->text = 'Ваш проверочный код : '.$_SESSION['CONFIRM_CODE'];
-        $sms = $sms->send_one($data);
+        $sms  = (new Send([
+                    'phone' => $phone,
+                    'text' => 'Ваш проверочный код : '.$_SESSION['CONFIRM_CODE']
+                ]))->send();
 
-        return $data;
+        return $sms;
     }
 
     public function forEmailOrPhone()

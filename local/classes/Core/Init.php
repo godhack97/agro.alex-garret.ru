@@ -35,7 +35,15 @@ class Init
             Misc::setHeaders('json');
             Misc::setHeaders('mandatory');
             $is_err ? Misc::setHeaders('500') : Misc::setHeaders('200');
-            echo \json_encode( $is_err ? $API_ERRORS : $result, JSON_UNESCAPED_UNICODE);
+
+
+            if($method == 'getMap')
+            {
+                Misc::setHeaders('200');
+                echo \json_encode($result ?: $API_ERRORS, JSON_UNESCAPED_UNICODE);
+            }
+            else
+                echo \json_encode( $is_err ? $API_ERRORS : $result, JSON_UNESCAPED_UNICODE);
 
             die();
         }

@@ -28,4 +28,7 @@ define('HIGHLOAD_MENU_ID', 'menus');
 
 # TABLE_NAME хайлоадблока с Хлебными крошками
 define('HIGHLOAD_BREADCRUMBS_ID', 'breadcrumbs');
+
+# TABLE_NAME хайлоадблока с Хлебными крошками
+define('SEVEREN_AUTHORIZE_DATA', ['login' => 'Agrokomplex', 'password' => 'CEPP1Van']);
 ?>
