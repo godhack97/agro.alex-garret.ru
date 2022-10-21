@@ -66,6 +66,8 @@ class Route
         #----------------  Каталог START -------------------------#
             # получить Товары
             '/api/catalog/get' => [Api\Catalog\Element::class, 'getList'],
+            # получить Пузыри
+            '/api/catalog/buble' => [Api\Catalog\Bubble::class, 'getList'],
         #----------------  Каталог END ---------------------------#
 
         #----------------  Пользователи START --------------------#

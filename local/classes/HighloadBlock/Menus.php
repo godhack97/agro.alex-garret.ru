@@ -7,7 +7,7 @@ use Godra\Api\Iblock,
 class Menus extends Base
 {
     protected $row_data = [
-        'code' => 'UF_CLASS нужного',
+        'code' => 'UF_CLASS нужного меню, можно посмотреть в highload блоке MENUS',
     ];
 
     public function get()
@@ -29,7 +29,7 @@ class Menus extends Base
         // получаю структуру инфоблока
         foreach ($res as &$item)
             if((bool) $item['IS_IBLOCK'])
-                $item['items'] = $this->getIblockMenu($item['URL']);
+                $item['items'] = $this->getIblockMenu(trim($item['URL'], '/'));
 
         return $res;
     }
@@ -43,7 +43,7 @@ class Menus extends Base
         ])->fetch()['ID'];
 
         $three = $this->getSectionsTree($iblock_id);
-        file_put_contents($_SERVER['DOCUMENT_ROOT'].'/local/file_put.php',print_r($three,1));
+
         return $three;
     }
 
@@ -55,7 +55,7 @@ class Menus extends Base
             'GLOBAL_ACTIVE'=>'Y',
         ];
         $order  = [ 'DEPTH_LEVEL' => 'ASC','SORT' => 'ASC'];
-        $select = ['IBLOCK_ID', 'ID','NAME', 'CODE','IBLOCK_SECTION_ID', 'SECTION_PAGE_URL_RAW' => 'IBLOCK.SECTION_PAGE_URL'];
+        $select = ['IBLOCK_ID', 'ID','NAME', 'CODE','IBLOCK_SECTION_ID', 'URL' => 'IBLOCK.SECTION_PAGE_URL'];
 
         $rs_sections = SectionTable::GetList([
             'order'  => $order,
@@ -69,9 +69,10 @@ class Menus extends Base
 
         foreach($rs_sections as $section)
         {
+
             $section_link[ intval($section['IBLOCK_SECTION_ID']) ]['items'][$section['ID']] = [
                 'name' => $section['NAME'],
-                'url' => \CIBlock::ReplaceDetailUrl($section['SECTION_PAGE_URL_RAW'], $section, true, 'S')
+                'url' => \CIBlock::ReplaceDetailUrl($section['URL'], $section, true, 'S')
             ];
             $section_link[$section['ID']] = &$section_link[intval($section['IBLOCK_SECTION_ID'])]['items'][$section['ID']];
         }

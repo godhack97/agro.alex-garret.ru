@@ -135,6 +135,26 @@ abstract class Base
           );
     }
 
+    /**
+     * Получить кол-во элементов раздела
+     * @return int|void
+     */
+    protected function GetCountChildrenByIblockSection($section_id = 0, $iblock_id = false)
+    {
+        $iblock_id ? $filter['IBLOCK_ID'] = $iblock_id : false;
+        $section_id ? $filter['SECTION_ID'] = $section_id : false;
+        $filter['ACTIVE'] = 'Y';
+        $filter['INCLUDE_SUBSECTIONS'] = 'Y';
+
+        return \CIBlockElement::GetList(
+            [],
+            $filter,
+            false,
+            false,
+            ['ID'],
+        )->SelectedRowsCount();
+    }
+
     protected function addSectionNameForEntity(&$entity)
     {
         $entity->addField(
