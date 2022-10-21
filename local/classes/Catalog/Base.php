@@ -22,7 +22,7 @@ abstract class Base extends \Godra\Api\Iblock\Base
 
     function __construct()
     {
-        Misc::includeModules(['iblock', 'catalog', 'sale']);
+        Misc::includeModules(['iblock', 'catalog', 'sale', 'currency']);
         $this->post_data = Misc::getPostDataFromJson();
     }
 
@@ -116,6 +116,44 @@ abstract class Base extends \Godra\Api\Iblock\Base
                 ]
             )
           );
+    }
+
+    /**
+     * Получение остатков товара на складах
+     * @return void
+     */
+    protected function getAmountById($product_id)
+    {
+        \Bitrix\Main\Loader::IncludeModule('catalog');
+
+        $amount = \Bitrix\Catalog\StoreProductTable::getList([
+            'filter' => ['PRODUCT_ID' => $product_id, 'STORE.ACTIVE'=>'Y']
+        ])->fetch();
+
+        return $amount['AMOUNT'];
+    }
+
+    public function getMap()
+    {
+        return static::$row_data;
+    }
+
+    /**
+     * Получить цену товара
+     * @return int
+     */
+    protected function getPrice($product_id)
+    {
+        # Возможно нужен будет GetOptimalPrice для цены со скидкой
+        $rs_price = \Bitrix\Catalog\PriceTable::getList([
+            'filter' => [
+                'PRODUCT_ID' => $product_id,
+            ]
+        ])->fetch();
+
+        $formating_price = \CCurrencyLang::CurrencyFormat($rs_price['PRICE'], $rs_price['CURRENCY']);
+
+        return $formating_price;
     }
 }
 ?>

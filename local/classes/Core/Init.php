@@ -40,10 +40,10 @@ class Init
             if($method == 'getMap')
             {
                 Misc::setHeaders('200');
-                echo \json_encode($result ?: $API_ERRORS, JSON_UNESCAPED_UNICODE);
+            echo \json_encode($result ?: $API_ERRORS/*, JSON_UNESCAPED_UNICODE*/);
             }
             else
-                echo \json_encode( $is_err ? $API_ERRORS : $result, JSON_UNESCAPED_UNICODE);
+        echo \json_encode( $is_err ? $API_ERRORS : $result/*, JSON_UNESCAPED_UNICODE*/);
 
             die();
         }

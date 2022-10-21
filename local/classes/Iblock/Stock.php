@@ -13,7 +13,6 @@ class Stock extends Base
         [ 'name' => 'NAME'],
         [ 'name' => 'DETAIL_TEXT'],
         [ 'name' => 'PREVIEW_TEXT'],
-        [ 'name' => 'FILES', 'method' => '\\CFile::GetPath'],
     ];
 
     protected static $api_ib_code = IBLOCK_STOCK_API;
