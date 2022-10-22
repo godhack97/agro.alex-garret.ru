@@ -362,7 +362,7 @@
 <br>
 <br>
 <br>
-<a href="#apimaptest"><a>
+<a class="anchor" href="#apimaptest"><a>
 <br>
 <br>
 <br>
