@@ -317,7 +317,7 @@
 
   + #### /api/users/get
      <details >
-        <summary>[ Получить пользователей ]</summary>
+        <summary>[ Получить пользователей <a href="#api-users-get" id="api-users-get">#</a> ]</summary>
       <hr>
 
       > Описание
@@ -362,7 +362,7 @@
 <br>
 <br>
 <br>
-<a href="#user-content-first-heading" id="first-heading">#</a>
+
 <br>
 <br>
 <br>
