@@ -103,7 +103,9 @@
 
 
 + #### Пользователи и авторизация
-  + #### /api/auth
+  + ####
+
+    <a href="#apiauth" id="apiauth"></a>
      <details >
         <summary>[ Авторизация ]</summary>
       <hr>
@@ -127,7 +129,7 @@
       </details>
 
 
-  + #### /api/logout
+    <a href="#apilogout" id="apilogout"></a>
      <details >
         <summary>[ Деавторизация ]</summary>
       <hr>
@@ -151,7 +153,7 @@
       </details>
 
 
-  + #### /api/isauth
+    <a href="#apiisauth" id="apiisauth"></a>
      <details >
         <summary>[ Проверка авторизации ]</summary>
       <hr>
@@ -175,7 +177,7 @@
       </details>
 
 
-  + #### /api/register
+    <a href="#apiregister" id="apiregister"></a>
      <details >
         <summary>[ Регистрация ]</summary>
       <hr>
@@ -199,7 +201,7 @@
       </details>
 
 
-  + #### /api/restore_password
+    <a href="#apirestore-password" id="apirestore-password"></a>
      <details >
         <summary>[ Получить код восстановления пароля ]</summary>
       <hr>
@@ -223,7 +225,7 @@
       </details>
 
 
-  + #### /api/change_password
+    <a href="#apichange-password" id="apichange-password"></a>
      <details >
         <summary>[ Изменить текущий пароль ]</summary>
       <hr>
@@ -246,7 +248,7 @@
       <hr>
       </details>
 
-  + #### /api/users/add
+    <a href="#apiusersadd" id="apiusersupdate"></a>
      <details >
         <summary>[  Создать пользователя ]</summary>
       <hr>
@@ -269,7 +271,7 @@
       <hr>
       </details>
 
-  + #### /api/users/update
+    <a href="#apiusersupdate" id="apiusersupdate"></a>
      <details >
         <summary>[ Обновить данные пользователя ]</summary>
       <hr>
@@ -292,7 +294,7 @@
       <hr>
       </details>
 
-  + #### /api/users/delete
+    <a href="#apiusersdelete" id="apiusersdelete"></a>
      <details >
         <summary>[ Удалить пользователя ]</summary>
       <hr>
@@ -315,9 +317,10 @@
       <hr>
       </details>
 
-  + #### /api/users/get
+
+    <a href="#apiusersget" id="apiusersget"></a>
      <details >
-        <summary>[ Получить пользователей <a href="#api-users-get" id="api-users-get">#</a> ]</summary>
+        <summary>[ Получить пользователей ]</summary>
       <hr>
 
       > Описание
