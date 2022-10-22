@@ -66,13 +66,26 @@ class Route
         #----------------  Каталог START -------------------------#
             # получить Товары
                 // надо описать логику работы с ценами
-                // описать логику работы с остатками
                 // логика фильтра товаров (хз как делать, для начала метод отдающий список свойств к товарам которые присутствуют в разделе и подразделах)
-                // вынести получение свойств в отдельный метод для Element.php
             '/api/catalog/get' => [Api\Catalog\Element::class, 'getList'],
             # получить Пузыри
             '/api/catalog/buble' => [Api\Catalog\Bubble::class, 'getList'],
         #----------------  Каталог END ---------------------------#
+
+
+        #----------------  Корзина START -------------------------#
+            # добавить товар
+            '/api/basket/add'    => [Api\Basket\AddProduct::class, 'byId'],
+            # удалить товар
+            '/api/basket/delete' => [Api\Basket\DeleteProduct::class, 'byId'],
+            # получить товары в корзине
+            '/api/basket/get' => [Api\Basket\Helper::class, 'getBasketItems'],
+            # уменьшить кол-во товара
+            '/api/basket/remove' => [Api\Basket\RemoveProduct::class, 'byId'],
+            # получить кол-во товаров в корзине
+            '/api/basket/count' => [Api\Basket\Helper::class, 'getQuantityList'],
+        #----------------  Каталог END ---------------------------#
+
 
         #----------------  Пользователи START --------------------#
             # Создать пользователя

@@ -65,11 +65,10 @@ class Misc {
     /**
      * делает простую сверку полей приходящих
      * по post с теми которые мы передадим
-     *
      * @param array $post_data ['code'=>'123', 'name' => 'admin'...]
      * @param array $rows ['code', 'admin' ..]
      * @param array $errors массив куда складывать ошибки
-     * @return void
+     * @deprecated v1
      */
     public static function checkRows($post_data, $rows, &$errors = [])
     {
@@ -79,8 +78,25 @@ class Misc {
     }
 
     /**
+     * делает простую сверку полей приходящих
+     * по post с теми которые мы передадим
+     * @param array $post_data
+     * @param array $row_data ['code', 'admin' ..]
+     */
+    public static function checkRowsV2($post_data, $row_data)
+    {
+        global $API_ERRORS;
+
+        foreach ($row_data as $name => $row)
+        {
+            if($row['mandatory'] AND !$post_data[$name])
+                $API_ERRORS[] = 'Не передано поле '.$name.'; Для уточнения данных по полю, вызовите метод /api/map с параметром url текущего метода.';
+        }
+
+    }
+
+    /**
      * массив в json
-     *
      * @param array $php_array
      * @return string
      */

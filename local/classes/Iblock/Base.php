@@ -1,8 +1,7 @@
 <?
 namespace Godra\Api\Iblock;
 
-use Bitrix\Iblock\ElementTable,
-    Bitrix\Iblock\SectionTable,
+use Bitrix\Iblock\SectionTable,
     Godra\Api\Helpers\Utility\Misc,
     Godra\Api\Iblock\IblockElementPropertyTable;
 
