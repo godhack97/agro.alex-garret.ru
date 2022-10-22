@@ -72,7 +72,7 @@
 
 ### Методы для фронт разработчика
 + #### Методы зпроса полей
-+ <a href="#apimap-test"><a>
+
    * #### /api/map
 
      <details >
@@ -362,6 +362,7 @@
 <br>
 <br>
 <br>
+<a href="#apimaptest"><a>
 <br>
 <br>
 <br>
