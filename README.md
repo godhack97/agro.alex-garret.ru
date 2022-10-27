@@ -248,7 +248,7 @@
       <hr>
       </details>
 
-    <a href="#apiusersadd" id="apiusersupdate"></a>
+    <a href="#apiusersadd" id="apiusersadd"></a>
      <details >
         <summary>[  Создать пользователя ]</summary>
       <hr>
