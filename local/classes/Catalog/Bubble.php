@@ -4,7 +4,11 @@ namespace Godra\Api\Catalog;
 class Bubble extends Base
 {
     protected static $row_data = [
-        'section_code'
+        'section_code' => [
+            'mandatory' => false,
+            'alias' => 'SECTION_CODE',
+            'description' => 'Символьный код раздела'
+        ]
     ];
 
     protected static $api_ib_code = IBLOCK_CATALOG_API;

@@ -68,6 +68,10 @@ class Route
                 // надо описать логику работы с ценами
                 // логика фильтра товаров (хз как делать, для начала метод отдающий список свойств к товарам которые присутствуют в разделе и подразделах)
             '/api/catalog/get' => [Api\Catalog\Element::class, 'getList'],
+
+            // Получить список просмотренных товаров // параметры не нужны
+            '/api/catalog/getviewed' => [Api\Catalog\Element::class, 'getViewed'],
+
             # получить Пузыри
             '/api/catalog/buble' => [Api\Catalog\Bubble::class, 'getList'],
         #----------------  Каталог END ---------------------------#

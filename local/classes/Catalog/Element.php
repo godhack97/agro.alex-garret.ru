@@ -12,7 +12,7 @@ class Element extends Base
      */
     protected static $row_data = [
         'element_code' => [
-            'mandatory' => true,
+            'mandatory' => false,
             'alias' => 'NAME',
             'description' => 'Символьный код товара'
         ],
@@ -72,6 +72,19 @@ class Element extends Base
         }
 
         return $products;
+    }
+
+    public static function getViewed()
+    {
+        $result = [];
+        $products_array = self::getViewedProducts();
+
+        foreach ($products_array as $value)
+        {
+            $result = array_merge($result, self::get($value));
+        }
+
+        return $result;
     }
 }
 ?>

@@ -1,9 +1,10 @@
 <?
 namespace Godra\Api\Iblock;
 
-use Bitrix\Iblock\SectionTable,
-    Godra\Api\Helpers\Utility\Misc,
-    Godra\Api\Iblock\IblockElementPropertyTable;
+use \Bitrix\Iblock\SectionTable,
+    \Godra\Api\Helpers\Utility\Misc,
+    \Bitrix\Catalog\CatalogViewedProductTable,
+    \Godra\Api\Iblock\IblockElementPropertyTable;
 
 abstract class Base
 {
@@ -22,17 +23,19 @@ abstract class Base
     /**
      * Получить товары по коду раздела
      * @param $data['code'] $section_id_or_code
+     * @param $product_id Ид товара, если нужно получить именно товар под капотом апи
      * @return array
      */
-    public static function get()
+    public static function get($product_id = false)
     {
-        Misc::includeModules(['iblock', 'catalog']);
+        Misc::includeModules(['iblock', 'catalog', 'sale']);
 
         // получение данных из post
         $data = Misc::getPostDataFromJson();
 
         // Проверка входящих данных, отдаст ошибки 3й аргумент
-        Misc::checkRows($data, static::$row_data, $result['errors']);
+        if(!$product_id)
+            Misc::checkRowsV2($data, static::$row_data, $result['errors']);
 
         // получение сущности
         $entity = static::getEntityName(static::$api_ib_code);
@@ -79,6 +82,11 @@ abstract class Base
         // код элемента
         $data['element_code'] ?
             $filter['CODE']  = $data['element_code'] : false;
+
+        // id элемента
+        $product_id ?
+            $filter['ID']  = $product_id : false;
+
 
         // выборка
         $query = new \Bitrix\Main\Entity\Query($entity);
@@ -127,6 +135,10 @@ abstract class Base
             unset($new_item);
         }
 
+        // Добавить товар в список просмотренных, если запросили деталку
+        if($data['element_code'] AND static::$api_ib_code == IBLOCK_CATALOG_API)
+            self::addViewedProduct($result['items'][0]['id']);
+
         // получить свойства
         self::getProps($result['items']);
 
@@ -134,10 +146,42 @@ abstract class Base
     }
 
     /**
+     * Добавить товар в список просмотренного
+     */
+    protected function addViewedProduct($id)
+    {
+        if($id AND \CSaleBasket::GetBasketUserID())
+            CatalogViewedProductTable::refresh($id, \CSaleBasket::GetBasketUserID());
+    }
+
+    /**
+     * Получить список просмотренных товаров
+     * @return array|void
+     */
+    protected function getViewedProducts()
+    {
+        $basket_user_id = (int)\CSaleBasket::GetBasketUserID(false);
+
+        if ($basket_user_id)
+        {
+            $viewedIterator = CatalogViewedProductTable::getList([
+                'select' => ['PRODUCT_ID', 'ELEMENT_ID'],
+                'filter' => ['=FUSER_ID' => $basket_user_id, '=SITE_ID' => SITE_ID],
+                'order'  => ['DATE_VISIT' => 'DESC'],
+                'limit'  => 10
+            ]);
+
+            while ($arFields = $viewedIterator->fetch())
+                $arViewed[] = $arFields['ELEMENT_ID'];
+
+            return $arViewed;
+        }
+    }
+
+    /**
      * Получить свойства для списка эелементов полученого
      *  методом get текущего класса
      * @param array $items
-     * @return void
      */
     protected function getProps(&$items)
     {

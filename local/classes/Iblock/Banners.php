@@ -4,7 +4,11 @@ namespace Godra\Api\Iblock;
 class Banners extends Base
 {
     protected static $row_data = [
-        'code'
+        'code' => [
+            'mandatory' => false,
+            'alias' => 'CODE',
+            'description' => 'Символьный код баннера'
+        ]
     ];
 
     protected static $select_rows = [
