@@ -110,9 +110,8 @@ class Misc {
      * Подключение модулей
      *
      * @param array $modules список модулей в массиве
-     * @return void
      */
-    public static function includeModules(array $modules): void
+    public static function includeModules(array $modules)
     {
         foreach ($modules as $module)
             if(!\Bitrix\Main\Loader::includeModule($module))
@@ -123,7 +122,6 @@ class Misc {
      * Форматирование цен
      *
      * @param mixed $price  цена
-     * @return void
      */
     public static function priceFormat($price)
     {
@@ -196,11 +194,47 @@ class Misc {
      * Подключить файл
      *
      * @param string $relativePath // путь
-     * @return void
      */
     public static function inlineFile(string $relativePath): void
     {
 	    include Application::getDocumentRoot() . $relativePath;
+    }
+
+    /**
+     * BugTrace
+     *
+     * @param [type] $var
+     * @param boolean $stop
+     * @param boolean $inconsole
+     * @param boolean $UID
+     */
+    public static function pre($var,$stop=false,$inconsole = false, $UID = false)
+    {
+        $bt         = debug_backtrace()[0];
+        $dRoot      = str_replace("/", "\\", $_SERVER["DOCUMENT_ROOT"]);
+        $bt["file"] = str_replace($dRoot, "", $bt["file"]);
+        $dRoot      = str_replace("\\", "/", $dRoot);
+        $bt["file"] = str_replace($dRoot, "", $bt["file"]);
+
+        if ($GLOBALS['USER']->IsAdmin())
+        {
+            if($UID && intval($UID)!==$GLOBALS['USER']->GetID()) return;
+
+            if($inconsole)
+            {
+                echo "<script>console.log('File: ".$bt['file']." [".$bt['line']."]');console.log(".json_encode($var).");</script>";
+            }
+            else
+            {
+                echo '<div style="padding:3px 5px; background:#99CCFF; font-weight:bold;">File: '.$bt["file"].' ['.$bt["line"].']</div>';
+
+                echo '<pre>';
+                ((is_array($var) || is_object($var)) ? print_r($var) : var_dump($var));
+                echo '</pre>';
+            }
+
+            if($stop) exit(0);
+        }
     }
 
 }

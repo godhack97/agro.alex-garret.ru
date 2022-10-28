@@ -32,10 +32,7 @@ class RemoveProduct extends Base
      */
     public function byId()
     {
-        $this->removeProductById(
-            $this->post_data['element_id'],
-            $this->post_data['quantity'] ?: $this->row_data['quantity']['default']
-        );
+        $this->removeProductById($this->post_data['element_id']);
     }
 }
 ?>

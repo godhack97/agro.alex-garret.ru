@@ -1,6 +1,8 @@
 <?
 namespace Godra\Api\Basket;
 
+use Godra\Api\Helpers\Utility\Misc;
+
 class AddProduct extends Base
 {
     /**
@@ -32,10 +34,7 @@ class AddProduct extends Base
      */
     public function byId()
     {
-        $this->addProductById(
-            $this->post_data['element_id'],
-            $this->post_data['quantity'] ?: $this->row_data['quantity']['default']
-        );
+        $this->addProductById($this->post_data['element_id']);
     }
 }
 ?>

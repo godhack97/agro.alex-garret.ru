@@ -88,6 +88,14 @@ class Route
             '/api/basket/remove' => [Api\Basket\RemoveProduct::class, 'byId'],
             # получить кол-во товаров в корзине
             '/api/basket/count' => [Api\Basket\Helper::class, 'getQuantityList'],
+
+            # Создать заказ
+            # надо допилить оплату и доставку
+            '/api/order/add' => [Api\Basket\Order::class, 'add'],
+
+            # получить список заказов
+            # надо допилить получение состава заказов + допил оплаты и доставки
+            '/api/orders/getall' => [Api\Orders\Get::class, 'getAll'],
         #----------------  Каталог END ---------------------------#
 
 
