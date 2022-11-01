@@ -1,5 +1,8 @@
 <?
 # SID формы регистрации
+
+use Bitrix\Main\Config\Option;
+
 define('REGISTRATION_FORM_SID', 'REQUEST_TO_REGISTRATION');
 
 # SID формы обратной связи
@@ -31,4 +34,7 @@ define('HIGHLOAD_BREADCRUMBS_ID', 'breadcrumbs');
 
 # TABLE_NAME хайлоадблока с Хлебными крошками
 define('SEVEREN_AUTHORIZE_DATA', ['login' => 'Agrokomplex', 'password' => 'CEPP1Van']);
+
+# Свойство с единицами измерения. множественное, value:упаковка Description: 5 (шт от базовой единицы)
+define('MEASURE_PROPERTY_ID', Option::get('main', 'api_measures_property_code') ?: false)
 ?>

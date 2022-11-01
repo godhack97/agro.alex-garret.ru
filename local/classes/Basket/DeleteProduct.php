@@ -13,6 +13,11 @@ class DeleteProduct extends Base
             'alias' => 'PRODUCT_ID',
             'description' => 'Ид товара'
         ],
+        'measure_code' => [
+            'mandatory' => false,
+            'alias' => 'measure',
+            'description' => 'Единица измерения , Символьный код единицы измерения'
+        ],
     ];
 
     /**
@@ -27,7 +32,7 @@ class DeleteProduct extends Base
      */
     public function byId()
     {
-        $this->deleteProductById($this->post_data['element_id']);
+        $this->deleteProductById($this->post_data['element_id'],  $this->post_data['measure_code']);
     }
 }
 ?>

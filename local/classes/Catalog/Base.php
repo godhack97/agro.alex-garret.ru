@@ -142,7 +142,7 @@ abstract class Base extends \Godra\Api\Iblock\Base
      * Получить цену товара
      * @return int
      */
-    protected function getPrice($product_id)
+    protected function getPrice($product_id, $pack_count = false)
     {
         # Возможно нужен будет GetOptimalPrice для цены со скидкой
         $rs_price = \Bitrix\Catalog\PriceTable::getList([
@@ -151,9 +151,13 @@ abstract class Base extends \Godra\Api\Iblock\Base
             ]
         ])->fetch();
 
-        $formating_price = \CCurrencyLang::CurrencyFormat($rs_price['PRICE'], $rs_price['CURRENCY']);
+        // цена упаковки
+        if($pack_count)
+            $price['formating_pack_price'] = \CCurrencyLang::CurrencyFormat($rs_price['PRICE']*$pack_count, $rs_price['CURRENCY']);
 
-        return $formating_price;
+        $price['formating_one_price'] = \CCurrencyLang::CurrencyFormat($rs_price['PRICE'], $rs_price['CURRENCY']);
+
+        return $price;
     }
 }
 ?>

@@ -237,4 +237,33 @@ class Misc {
         }
     }
 
+    /**
+     * Получить свойства каталога, отдаёт массив вида
+     * * [ ['NAME' => имя, 'ID' => id], ..  ]
+     * @return array|void
+     */
+    public static function getCatalogProperties()
+    {
+        \Bitrix\Main\Loader::IncludeModule('catalog');
+
+        return \Bitrix\Iblock\PropertyTable::getList([
+            'filter' => [
+                'IBLOCK_ID' => \Bitrix\Iblock\IblockTable::getList([
+                    'filter' => ['CODE' => IBLOCK_CATALOG_API]
+                    ])->fetch()['ID']
+            ],
+            'select' => ['NAME', 'ID']
+        ])->fetchAll();
+    }
+
+    public static function getMeasureCooficientByProductId($id)
+    {
+        return \Godra\Api\Iblock\IblockElementPropertyTable::getList([
+            'filter' => [
+                'IBLOCK_ELEMENT_ID' => $id,
+                'IBLOCK_PROPERTY_ID' => MEASURE_PROPERTY_ID
+            ],
+            'select' => ['VALUE', 'DESCRIPTION'],
+        ])->fetch()['DESCRIPTION'];
+    }
 }

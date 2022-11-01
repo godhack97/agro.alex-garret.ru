@@ -4,6 +4,7 @@ use \Bitrix\Main,
     \Bitrix\Sale,
     \Bitrix\Currency,
     \Bitrix\Sale\Order,
+    \Bitrix\Sale\Basket,
     \Bitrix\Main\Loader,
     \Bitrix\Main\Context,
     \Bitrix\Sale\Delivery,
@@ -54,7 +55,26 @@ abstract class Base
         ])->fetchAll();
 
         foreach ($db_orders as $order)
+        {
+            $basketItems = (Sale\Order::load($order['ID'])->getBasket())->getBasketItems();
+
+            foreach ($basketItems as $item)
+                $products[] = [
+                    'id'           => $item->getId(),
+                    'name'         => $item->getField('NAME'),
+                    'price'        => $item->getPrice(),
+                    'props'        => $item->getPropertyCollection()->getPropertyValues(),
+                    'weight'       => $item->getWeight(),
+                    'can_buy'      => $item->canBuy(),
+                    'quantity'     => $item->getQuantity(),
+                    'product_id'   => $item->getProductId(),
+                    'final_price'  => $item->getFinalPrice(),
+                    'measure_code' => $item->getField('MEASURE_CODE'),
+                    'measure_name' => $item->getField('MEASURE_NAME'),
+                ];
+
             $result[] = [
+                'products'       => $products,
                 'id'             => $order['ID'],
                 'currency'       => $order['CURRENCY'],
                 'delivery_id'    => $order['DELIVERY_ID'],
@@ -70,6 +90,7 @@ abstract class Base
                 'price_delivery' => \CCurrencyLang::CurrencyFormat($order['PRICE_DELIVERY'], $order['CURRENCY']),
                 'discount_value' => \CCurrencyLang::CurrencyFormat($order['DISCOUNT_VALUE'], $order['CURRENCY']),
             ];
+        }
 
         return $result ?: null;
     }

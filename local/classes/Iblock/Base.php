@@ -1,7 +1,9 @@
 <?
 namespace Godra\Api\Iblock;
 
-use \Bitrix\Iblock\SectionTable,
+use \Bitrix\Main\Entity\Query,
+    \Bitrix\Catalog\PriceTable,
+    \Bitrix\Iblock\SectionTable,
     \Godra\Api\Helpers\Utility\Misc,
     \Bitrix\Catalog\CatalogViewedProductTable,
     \Godra\Api\Iblock\IblockElementPropertyTable;
@@ -35,7 +37,7 @@ abstract class Base
 
         // Проверка входящих данных, отдаст ошибки 3й аргумент
         if(!$product_id)
-            Misc::checkRowsV2($data, static::$row_data, $result['errors']);
+            Misc::checkRowsV2($data, static::$row_data);
 
         // получение сущности
         $entity = static::getEntityName(static::$api_ib_code);
@@ -55,14 +57,14 @@ abstract class Base
         $select[] = 'SECTION_CODE';
 
         $section_id  = static::getSectionByFilter(['CODE' => $data['section_code']]);
-        $section = \Bitrix\Iblock\SectionTable::getList([
+        $section = SectionTable::getList([
             'filter' => ['CODE' => $data['section_code']],
             'select' => ['ID', 'LEFT_MARGIN', 'DEPTH_LEVEL', 'RIGHT_MARGIN'],
             'limit'  => 1
         ])->fetch();
 
         $ids = \array_column(
-            \Bitrix\Iblock\SectionTable::getList([
+           SectionTable::getList([
                 'filter' => [
                     '>LEFT_MARGIN' => $section['LEFT_MARGIN'],
                     '>DEPTH_LEVEL' => $section['DEPTH_LEVEL'],
@@ -89,14 +91,35 @@ abstract class Base
 
 
         // выборка
-        $query = new \Bitrix\Main\Entity\Query($entity);
+        $query = new Query($entity);
+
+        // добавил для сортировки по цене
+        $query->registerRuntimeField('PRICE', [
+                'data_type' => PriceTable::getEntity(),
+                'reference' => [
+                    '=this.ID' => 'ref.PRODUCT_ID',
+                ],
+                'join_type' => 'LEFT'
+            ]
+        );
+
 
         // Пагинация
-        $limit = $data['limit'] ?: 25;
+        $limit  = $data['limit'] ?: 25;
         $offset = $data['page'] * $limit;
 
+        // сортировка
+        $order  = ['PREVIEW_PICTURE' => 'desc'];
+        $order  = ['SHOW_COUNTER' => 'asc'];
+        // $order  = ['ACTIVE_FROM' => 'asc'];
+
+        // Сортировка по order: { name: поле, direction: направление }
+        if($data['order']['name'] and $data['order']['direction'])
+                $order[\strtoupper($data['order']['name'])] = $data['order']['direction'];
+
         $collection = $query
-            ->setSelect($select)
+            ->setSelect(array_merge($select, ['price']))
+            ->setOrder($order)
             ->setLimit($limit)
             ->setOffset($offset)
             ->setFilter($filter)
@@ -108,7 +131,8 @@ abstract class Base
         {
             foreach($select as $key => $name)
             {
-                $field  = $item->get($name);
+               $field  = $item->get($name);
+
                 $name   = static::$select_rows[$key]['alias'] ?:  \strtolower($name);
                 $method = static::$select_rows[$key]['method'];
 
@@ -128,8 +152,6 @@ abstract class Base
                 $new_item['url'] = \preg_replace('/[\/]+/m', '/', $new_item['url']);
             }
 
-
-
             $result['items'][] = $new_item;
             unset($props);
             unset($new_item);
@@ -137,12 +159,72 @@ abstract class Base
 
         // Добавить товар в список просмотренных, если запросили деталку
         if($data['element_code'] AND static::$api_ib_code == IBLOCK_CATALOG_API)
+        {
             self::addViewedProduct($result['items'][0]['id']);
+            \CIBlockElement::CounterInc($result['items'][0]['id']);
+        }
 
         // получить свойства
         self::getProps($result['items']);
 
         return count($result['errors']) ? $result['errors'] : $result['items'];
+    }
+
+    /**
+     * Получить товары по коду раздела ( Получить кол-во )
+     * @param $data['code'] $section_id_or_code
+     * @return int
+     */
+    protected static function countElementsBySectionCode()
+    {
+        Misc::includeModules(['iblock', 'catalog', 'sale']);
+
+        // получение данных из post
+        $data = Misc::getPostDataFromJson();
+
+        // Проверка входящих данных, отдаст ошибки 3й аргумент
+        Misc::checkRowsV2($data, static::$row_data);
+
+        // получение сущности
+        $entity = static::getEntityName(static::$api_ib_code);
+        $entity = $entity::getEntity();
+
+        $section_id  = static::getSectionByFilter(['CODE' => $data['section_code']]);
+        $section = \Bitrix\Iblock\SectionTable::getList([
+            'filter' => ['CODE' => $data['section_code']],
+            'select' => ['ID', 'LEFT_MARGIN', 'DEPTH_LEVEL', 'RIGHT_MARGIN'],
+            'limit'  => 1
+        ])->fetch();
+
+        $ids = \array_column(
+            \Bitrix\Iblock\SectionTable::getList([
+                'filter' => [
+                    '>LEFT_MARGIN' => $section['LEFT_MARGIN'],
+                    '>DEPTH_LEVEL' => $section['DEPTH_LEVEL'],
+                    '<RIGHT_MARGIN'=> $section['RIGHT_MARGIN']
+                ],
+                'select' => ['ID']
+            ])->fetchAll(),
+            'ID'
+        );
+
+        $ids[] = $section['ID'];
+
+        // код раздела
+        $filter = $section_id ?
+            ['IBLOCK_SECTION_ID' => $ids] : [];
+
+        // выборка
+        $query = new \Bitrix\Main\Entity\Query($entity);
+
+
+        $count = $query
+            ->setFilter($filter)
+            ->countTotal(true)
+            ->exec()
+            ->getCount();
+
+        return $count;
     }
 
     /**
@@ -340,6 +422,12 @@ abstract class Base
             )
           );
     }
+
+
+
+
+
+
 
     protected static function getAllValues($field)
     {

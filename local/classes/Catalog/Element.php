@@ -11,9 +11,18 @@ class Element extends Base
      * @var array
      */
     protected static $row_data = [
+        'order' => [
+            'mandatory' => false,
+            'description' => 'Сортировка вида { name: название поля, direction: направлениесортировки(asc/desc) }'
+        ],
+        'section_code' => [
+            'mandatory' => false,
+            'alias' => 'CODE',
+            'description' => 'Символьный код раздела'
+        ],
         'element_code' => [
             'mandatory' => false,
-            'alias' => 'NAME',
+            'alias' => 'CODE',
             'description' => 'Символьный код товара'
         ],
         'limit' => [
@@ -42,8 +51,10 @@ class Element extends Base
      * @var array
      */
     protected static $select_rows = [
-        [ 'name' => 'ID' , 'alias' => 'id'],
         [ 'name' => 'NAME'],
+        [ 'name' => 'CODE'],
+        [ 'name' => 'SHOW_COUNTER'],
+        [ 'name' => 'ID' , 'alias' => 'id'],
         [ 'name' => 'PREVIEW_PICTURE', 'method' => '\\CFile::getPath'],
         [ 'name' => 'DETAIL_PICTURE',  'method' => '\\CFile::getPath'],
     ];
@@ -67,7 +78,7 @@ class Element extends Base
 
         foreach ($products as &$product)
         {
-            $product['price'] = self::getPrice($product['id']);
+            $product['price']  = self::getPrice($product['id'], $product['props']['Базовая единица'][0]['description']);
             $product['amount'] = self::getAmountById($product['id']);
         }
 
@@ -85,6 +96,15 @@ class Element extends Base
         }
 
         return $result;
+    }
+
+    /**
+     * Получить количкество элементов по фильтру, работает как self::getList
+     * @return int
+     */
+    public static function getCount()
+    {
+        return self::countElementsBySectionCode();
     }
 }
 ?>

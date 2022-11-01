@@ -4,6 +4,8 @@ namespace Godra\Api\Basket;
 use \Bitrix\Sale,
     \Bitrix\Sale\Order,
     \Bitrix\Main\Context,
+    \Godra\Api\Catalog\Element,
+    \Bitrix\Catalog\MeasureTable,
     \Bitrix\Main\Engine\CurrentUser,
     \Godra\Api\Helpers\Utility\Misc,
     \Bitrix\Currency\CurrencyManager,
@@ -43,21 +45,52 @@ abstract class Base
         ];
     }
 
+    /**
+     * Получить единицу измерения по коду
+     *
+     * @param string $code Код единицы измерения
+     * @return array|
+     */
+    protected function getMeasureByCode($code)
+    {
+        return MeasureTable::getList([
+            'filter' => [ 'SYMBOL' => $code ],
+            'limit'  => 1,
+        ])->fetch();
+    }
 
-    protected function GetExistsBasketItem($id)
+    /**
+     * Проверить наличие товара в корзине
+     *
+     * @param int $id Ид товара
+     * @param string $measure_code название единицы измерения
+     * @return boolean
+     */
+    protected function GetExistsBasketItem($id, $measure_code = false)
     {
         $result = false;
 
-        if(!empty($id) && (intval($id)>0) && (intval($id) == $id))
+        if(empty($id) OR intval($id) <= 0 OR intval($id) != $id)
+            return $result;
+
+        foreach ($this->basket as $item)
         {
-           foreach ($this->basket as $item)
-           {
-              if($id == $item->getProductId() && ($item->getField('MODULE') == 'catalog'))
-              {
-                 $result = $item;
-                 break;
-              }
-           }
+            if((int) $id == $item->getProductId())
+            {
+                if($measure_code)
+                {
+                    if(($item->getField('MEASURE_CODE') == $measure_code))
+                    {
+                        $result = $item;
+                        break;
+                    }
+                }
+                else
+                {
+                    $result = $item;
+                    break;
+                }
+            }
         }
 
         return $result;
@@ -66,14 +99,24 @@ abstract class Base
     /**
      * Добавить товар в текущую корзину по id товара
      * @param int $id
+     * @param array $measure Единица измерения , {name: 'название из админки', value: 'коофициент относительно базовой единицы' }
      * @param int $quantity
      */
-    protected function addProductById($id)
+    protected function addProductById($id, $measure_code = false)
     {
+
+        if($measure_code)
+        {
+                $measure = $this->getMeasureByCode($measure_code);
+                $cooficient = Misc::getMeasureCooficientByProductId($id);
+        }
+
         $quantity = $this->post_data['quantity'] ?: 1;
 
-        if ($item = $this->GetExistsBasketItem($id))
+        if ($item = $this->GetExistsBasketItem( $id, $measure['CODE'] ? : false ))
+        {
             $item->setField('QUANTITY', $item->getQuantity() + (int) $quantity);
+        }
         else
         {
             $item = $this->basket->createItem('catalog', $id);
@@ -81,9 +124,17 @@ abstract class Base
             $item->setFields([
                 'QUANTITY' => (int) $quantity,
                 'LID'      => 's1',
-                //'CURRENCY' => $this->currency,
                 'PRODUCT_PROVIDER_CLASS' => 'CCatalogProductProvider',
             ]);
+
+            // Если передана единица измерения
+            if($measure_code AND $measure)
+            {
+                $item->setField('MEASURE_CODE', (int) $measure['CODE']);
+                $item->setField('MEASURE_NAME', $measure['MEASURE_TITLE']);
+                $item->setField('CUSTOM_PRICE', 'Y');
+                $item->setField('PRICE', $item->getPrice()*$cooficient);
+            }
 
         }
 
@@ -95,11 +146,16 @@ abstract class Base
      * @param int $id
      * @param int $quantity
      */
-    protected function removeProductById($id)
+    protected function removeProductById($id, $measure_code = false)
     {
+        if($measure_code)
+        {
+            $measure = $this->getMeasureByCode($measure_code);
+        }
+
         $quantity = $this->post_data['quantity'] ?: 1;
 
-        if ($item = $this->basket->getExistsItem('catalog', $id))
+        if ($item = $this->GetExistsBasketItem( $id, $measure['CODE'] ? : false ))
             $item->getQuantity() > $quantity ?
                 $item->setField('QUANTITY', $item->getQuantity() - $quantity):
                 $item->delete();
@@ -111,12 +167,10 @@ abstract class Base
      * Удалить товар из корзины по id товара
      * @param int $id
      */
-    protected function deleteProductById($id)
+    protected function deleteProductById($id, $measure_code = false)
     {
-        /** @var Sale\BasketItem $basketItem */
-        foreach ($this->basket as $basketItem)
-            if ($basketItem->getProductId() == $id)
-                $basketItem->delete();
+        if($item = $this->GetExistsBasketItem( $id, $measure['CODE'] ? : false ))
+            $item->delete();
 
         $this->basket->save();
     }
@@ -160,15 +214,18 @@ abstract class Base
 
         foreach ($basketItems as $item)
             $result[] = [
-                'id'          => $item->getId(),
-                'name'        => $item->getField('NAME'),
-                'price'       => $item->getPrice(),
-                'props'       => $item->getPropertyCollection()->getPropertyValues(),
-                'weight'      => $item->getWeight(),
-                'can_buy'     => $item->canBuy(),
-                'quantity'    => $item->getQuantity(),
-                'product_id'  => $item->getProductId(),
-                'final_price' => $item->getFinalPrice(),
+                'id'           => $item->getId(),
+                'name'         => $item->getField('NAME'),
+                'price'        => $item->getPrice(),
+                'props'        => $item->getPropertyCollection()->getPropertyValues(),
+                'weight'       => $item->getWeight(),
+                'can_buy'      => $item->canBuy(),
+                'quantity'     => $item->getQuantity(),
+                'product_id'   => $item->getProductId(),
+                'final_price'  => $item->getFinalPrice(),
+                'measure_code' => $item->getField('MEASURE_CODE'),
+                'measure_name' => $item->getField('MEASURE_NAME'),
+
             ];
 
         return $result;

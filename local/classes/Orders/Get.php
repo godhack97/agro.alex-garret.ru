@@ -11,7 +11,7 @@ class Get extends Base
 
 
     /**
-     * Добавить товар в корзину по id
+     * Получить список товаров в корзине
      */
     public function getAll()
     {

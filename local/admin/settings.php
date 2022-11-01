@@ -1,5 +1,6 @@
 <?
 use Bitrix\Main\Config\Option;
+use \Godra\Api\Helpers\Utility\Misc;
 
 require $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin.php";?>
 <?
@@ -105,6 +106,18 @@ $data = [
             'name' => 'okpo',
             'value' => Option::get('main', 'api_okpo') ?: '',
         ],
+    ],
+
+    'Каталог' => [
+        [
+            'title' => 'Свойство с единицами измерения',
+            'tag' => 'select',
+            'type' => '',
+            'required' => true,
+            'name' => 'measures_property_code',
+            'value' => Option::get('main', 'api_measures_property_code') ?: '',
+            'multiselect_values' => Misc::getCatalogProperties(),
+        ]
     ]
 ];
 ?>
@@ -146,15 +159,44 @@ function input_hr($name)
 
 function input($data)
 {
-    return
-    '<tr>
-        '.input_hr($data['title']).'
-        <td width="40%" class="adm-detail-content-cell-r">
-            <'.$data['tag'].' type="'.$data['type'].'" size="40" name="'.$data['name'].'" value="'.$data['value'].'">
-        </td>
-    </tr>';
-}
+    if($data['tag'] == 'input')
+    {
+        return
+        '<tr>
+            '.input_hr($data['title']).'
+            <td width="40%" class="adm-detail-content-cell-r">
+                <'.$data['tag'].' type="'.$data['type'].'" size="40" name="'.$data['name'].'" value="'.$data['value'].'">
+            </td>
+        </tr>';
+    }
 
+    if($data['tag'] == 'select')
+    {
+        $required = $data['required'] ? 'required':'';
+
+        $res =
+        '<tr>
+            '.input_hr($data['title']).'
+            <td width="40%" class="adm-detail-content-cell-r">
+                <'.$data['tag'].' '.$required.' size="10" type="'.$data['type'].'" size="40" name="'.$data['name'].'" value="'.$data['value'].'">';
+
+                foreach ($data['multiselect_values'] as $value)
+                {
+                    $selected = $value['ID'] == $data['value'] ?
+                        'selected' : '';
+
+                    $res .= '<option '
+                    .$selected.
+                    ' value="'.$value['ID'].'">'.$value['NAME'].'</option>';
+                }
+
+                $res .= '<./'.$data['tag'].'.>
+            </td>
+        </tr>';
+
+        return $res;
+    }
+}
 function inputs($data)
 {
     $str = '';
@@ -162,4 +204,14 @@ function inputs($data)
         echo input($input);
 }
 ?>
+<style>
+    option[selected] {
+        color: green;
+        border: solid green 1px;
+    }
+
+    option:active {
+        color: green;
+    }
+</style>
 <?require $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php";?>

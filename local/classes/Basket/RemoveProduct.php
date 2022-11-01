@@ -19,6 +19,11 @@ class RemoveProduct extends Base
             'default' => 1,
             'description' => 'Кол-во товара , по умолчанию 1'
         ],
+        'measure_code' => [
+            'mandatory' => false,
+            'alias' => 'measure',
+            'description' => 'Единица измерения , Символьный код единицы измерения'
+        ],
     ];
 
     /**
@@ -32,7 +37,7 @@ class RemoveProduct extends Base
      */
     public function byId()
     {
-        $this->removeProductById($this->post_data['element_id']);
+        $this->removeProductById($this->post_data['element_id'], $this->post_data['measure_code'] ?: false);
     }
 }
 ?>
