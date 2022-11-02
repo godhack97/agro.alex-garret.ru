@@ -126,6 +126,7 @@ abstract class Base
             ->exec()
             ->fetchCollection();
 
+
         // обработка значений
         foreach ($collection as $item)
         {
