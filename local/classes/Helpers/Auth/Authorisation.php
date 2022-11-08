@@ -5,6 +5,8 @@ use     \Bitrix\Main\Context,
         \Bitrix\Main\UserTable,
         \Godra\Api\Helpers\Utility\Misc;
 
+use Bitrix\Main\Web\JWT;
+
 class Authorisation extends Base
 {
     protected $data_rows = [
@@ -23,8 +25,16 @@ class Authorisation extends Base
             $result['errors'][] = 'Вы уже авторизованы';
         else
         {
+            $rules = new \Bitrix\Main\Authentication\Policy\RulesCollection;
+            // Ставлю время сессии равное времени действия токена
+            // $rules->set( 'SESSION_TIMEOUT' , (TOKEN_EXPIRE_SEC/60) );
+
+
             // попытка авторизаци
             $auth = $this->cuser->Login($this->getDataByLogin($this->data['login']), $this->data['password'], "Y", "Y");
+
+            if(!$auth)
+                $GLOBAL_API[] = 'Проверьте данные авторизации';
 
             // проверка полей
             foreach ($this->data_rows as $row)
@@ -36,80 +46,53 @@ class Authorisation extends Base
                 $result['errors'][] = str_replace('<br>', '', $auth['MESSAGE']);
 
             Context::getCurrent()->getResponse()->writeHeaders();
+
+            $token = [
+                'sub'   => $this->cuser->getId(),
+                'login' => $this->cuser->getLogin(),
+                'iat'   => time(),
+                'exp'   => time() + $this->getPoliciesByUserGroup()*60,
+            ];
+
+            return [
+                'token'   => JWT::encode($token, TOKEN_SECRET_KEY),
+                'user_id' => $this->cuser->getId(),
+            ];
         }
 
         return $result;
     }
 
-    public function gen_token()
-    {
-        if (function_exists('com_create_guid') === true)
-            return trim(com_create_guid(), '{}');
 
-        return sprintf(
-            '%04X%04X-%04X-%04X-%04X-%04X%04X%04X',
-            mt_rand(0, 65535),
-            mt_rand(0, 65535),
-            mt_rand(0, 65535),
-            mt_rand(16384, 20479),
-            mt_rand(32768, 49151),
-            mt_rand(0, 65535),
-            mt_rand(0, 65535),
-            mt_rand(0, 65535)
-        );
+    /**
+     * Получает время действия сессии группы пользователей с кодом all
+     * @return int
+     */
+    public function getPoliciesByUserGroup()
+    {
+        global $DB;
+
+        // группа "все пользователи"
+        $group_alluser_id = $DB->Query('SELECT ID FROM b_group G WHERE STRING_ID="all"', true)->fetch()['ID'];
+
+        // Правила группы
+        if($group_alluser_id)
+            $policy = \unserialize(
+                $DB->Query('SELECT G.SECURITY_POLICY FROM b_group G WHERE G.ID='.$group_alluser_id)->fetch()['SECURITY_POLICY']
+            );
+
+        return $policy['SESSION_TIMEOUT'] ?: 24;
+
     }
 
     public function preAuthByCookieHash()
     {
-
-        $token = random_bytes(15);
-        //echo bin2hex($token);
-
-
-        //$this->gen_token();
-
         $cookie_login = ${\COption::GetOptionString("main", "cookie_name", "BITRIX_SM")."_LOGIN"};
         $cookie_md5pass = ${\COption::GetOptionString("main", "cookie_name", "BITRIX_SM")."_UIDH"};
 
         $this->cuser->LoginByHash($cookie_login, $cookie_md5pass);
 
         Context::getCurrent()->getResponse()->writeHeaders();
-    }
-
-    /**
-     * Get header Authorization
-     * */
-    private function getAuthorizationHeader(){
-        $headers = null;
-        if (isset($_SERVER['Authorization']))
-        {
-            $headers = trim($_SERVER["Authorization"]);
-        }
-        else if (isset($_SERVER['HTTP_AUTHORIZATION']))
-        {
-            $headers = trim($_SERVER["HTTP_AUTHORIZATION"]);
-        } elseif (function_exists('apache_request_headers'))
-        {
-            $requestHeaders = apache_request_headers();
-            $requestHeaders = array_combine(array_map('ucwords', array_keys($requestHeaders)), array_values($requestHeaders));
-
-            if (isset($requestHeaders['Authorization']))
-                $headers = trim($requestHeaders['Authorization']);
-        }
-        return $headers;
-    }
-    /**
-     * get access token from header
-     * */
-    private function getBearerToken() {
-        $headers = $this->getAuthorizationHeader();
-        // HEADER: Get the access token from the header
-        if (!empty($headers)) {
-            if (preg_match('/Bearer\s(\S+)/', $headers, $matches)) {
-                return $matches[1];
-            }
-        }
-        return null;
     }
 
 }

@@ -29,6 +29,16 @@ define('IBLOCK_DASHBOARD_API', 'dashboard');
 # TABLE_NAME хайлоадблока с меню
 define('HIGHLOAD_MENU_ID', 'menus');
 
+/************** ТОКЕН **************** */
+
+# Секретный код токена
+define('TOKEN_SECRET_KEY', '231654Wrt');
+
+# Время жизни токена / сек
+define('TOKEN_EXPIRE_SEC', 3600);
+
+/****************************************** */
+
 # TABLE_NAME хайлоадблока с Хлебными крошками
 define('HIGHLOAD_BREADCRUMBS_ID', 'breadcrumbs');
 

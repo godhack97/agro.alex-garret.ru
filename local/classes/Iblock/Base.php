@@ -139,12 +139,9 @@ abstract class Base
 
                 // перебор, для случая множественного значения
                 $new_item[$name] = \is_object($field) ?
-                    (
-                        method_exists($field, 'getValue') ?
-                            $field->getValue():
-                            self::getAllValues($field)
-                    ):
+                    ($field->getValue() ?? self::getAllValues($field)):
                     $field;
+
 
                 /** Обработка переданных методов в поле method , заменяет $val на значение, если нужен просто результат, а не определённое поле результата, то можно передать только метод */
                 if($method)

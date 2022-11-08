@@ -16,7 +16,8 @@
         }
     ],
     "require": {
-        "guzzlehttp/guzzle": "6.5.5"
+        "guzzlehttp/guzzle": "6.5.5",
+        "firebase/php-jwt": "^6.3"
     },
     "config": {
         "platform": {

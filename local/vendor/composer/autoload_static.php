@@ -35,6 +35,10 @@ class ComposerStaticInitb9ce55b1e01aa2b2fdec8b218ed5f3cf
             'GuzzleHttp\\' => 11,
             'Godra\\Api\\' => 10,
         ),
+        'F' => 
+        array (
+            'Firebase\\JWT\\' => 13,
+        ),
     );
 
     public static $prefixDirsPsr4 = array (
@@ -69,6 +73,10 @@ class ComposerStaticInitb9ce55b1e01aa2b2fdec8b218ed5f3cf
         'Godra\\Api\\' => 
         array (
             0 => __DIR__ . '/../..' . '/classes',
+        ),
+        'Firebase\\JWT\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/firebase/php-jwt/src',
         ),
     );
 

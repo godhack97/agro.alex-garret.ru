@@ -14,8 +14,11 @@ class Banners extends Base
     protected static $select_rows = [
         [ 'name' => 'ID' ],
         [ 'name' => 'all_width_picture', 'method' => '\\CFile::GetPath'],
-        [ 'name' => 'button_content'],
+        [ 'name' => 'button_content', 'alias' => 'button_url'],
         [ 'name' => 'NAME'],
+        [ 'name' => 'PREVIEW_TEXT'],
+        [ 'name' => 'SORT'],
+        [ 'name' => 'CODE', 'alias' => 'element_code'],
     ];
 
     protected static $api_ib_code = IBLOCK_BANNERS_API;

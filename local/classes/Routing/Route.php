@@ -2,13 +2,13 @@
 namespace Godra\Api\Routing;
 
 use \Godra\Api,
+    \Godra\Api\Token,
     \Godra\Api\Services,
     \Godra\Api\Helpers\Auth,
     \Bitrix\Main\Application,
     \Godra\Api\HighloadBlock\Menus,
     \Godra\Api\HighloadBlock\BreadCrumbs,
     \Godra\Api\Helpers\Utility\Misc;
-
 
 
 class Route
@@ -23,8 +23,16 @@ class Route
      * @var array
      */
     protected $methods = [
+
+        /** Отдавать форму для кнопки на баннере */
+        /** Реализовать меню footer в highblock "все меню" */
+        /** Реализовать иконки black и Green для разделов с помощью uf_ */
+
         // даёт информацию по ожидаемым полям, принимает url метода
         '/api/map' => [Route::class, 'getMap'],
+
+        // ТЕСТ
+        '/api/token' => [Token\Auth::class, 'login'],
 
         // Отдаёт меню, нужен code
         // есть возможность собирать список разделов указав один пункт меню и в урл забив api code инфоблока

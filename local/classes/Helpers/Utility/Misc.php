@@ -15,7 +15,7 @@ class Misc {
      */
     public static function checkRequestPage($requestPage)
     {
-        return (strpos($requestPage, 'api') != false);
+        return (strpos($requestPage, 'api/') != false);
     }
 
 
@@ -138,7 +138,7 @@ class Misc {
      * @param boolean $desc направление сортировки
      * @return void
      */
-	public static function aSortByField(array &$arr, string $fieldName, bool $desc = false): void
+	public static function aSortByField(array &$arr, string $fieldName, $desc = false)
     {
 		uasort($arr, function ($a, $b) use ($fieldName, $desc) {
 			return ($a[$fieldName] <=> $b[$fieldName]) * ($desc ? -1 : 1);
@@ -251,7 +251,8 @@ class Misc {
                     'filter' => ['CODE' => IBLOCK_CATALOG_API]
                     ])->fetch()['ID']
             ],
-            'select' => ['NAME', 'ID']
+            'select' => ['NAME', 'ID'],
+            'order'  => ['NAME' => 'asc'],
         ])->fetchAll();
     }
 
