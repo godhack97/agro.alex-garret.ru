@@ -57,6 +57,7 @@ class Authorisation extends Base
             return [
                 'token'   => JWT::encode($token, TOKEN_SECRET_KEY),
                 'user_id' => $this->cuser->getId(),
+                'premission' => 'superuser',
             ];
         }
 

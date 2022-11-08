@@ -53,6 +53,8 @@ class Element extends Base
     protected static $select_rows = [
         [ 'name' => 'NAME'],
         [ 'name' => 'CODE'],
+        [ 'name' => 'DETAIL_TEXT'],
+        [ 'name' => 'PREVIEW_TEXT'],
         [ 'name' => 'SHOW_COUNTER'],
         [ 'name' => 'ID' , 'alias' => 'id'],
         [ 'name' => 'PREVIEW_PICTURE', 'method' => '\\CFile::getPath'],
@@ -99,7 +101,7 @@ class Element extends Base
     }
 
     /**
-     * Получить количкество элементов по фильтру, работает как self::getList
+     * Получить количество элементов по фильтру, работает как self::getList
      * @return int
      */
     public static function getCount()

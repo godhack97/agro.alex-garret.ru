@@ -27,6 +27,7 @@ class Settings extends BaseData
     protected function preparePostData()
     {
         if($_POST['apply'] OR $_POST['save'])
+        {
             foreach ($_POST as $key => $value)
                 if(\is_array($value))
                     Option::set(
@@ -34,6 +35,11 @@ class Settings extends BaseData
                         'api_'.$key ,
                         \is_array($value) ? \serialize($value) : \trim($value)
                     );
+
+            // Обработка настройки фильтруемости свойств
+            if(count($_POST['filter_props']) AND is_array($_POST['filter_props']))
+                (new \Godra\Api\Properties\Helper)->updateFilterableProps($_POST['filter_props']);
+        }
     }
 
     /**

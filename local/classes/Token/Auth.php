@@ -30,6 +30,8 @@ class Auth extends Base
             $API_ERRORS[] = 'Нет токена авторизации';
         }
 
+        $decodet['user_type'] = 'superuser';
+
         return $decoded;
     }
 }

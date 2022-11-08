@@ -85,6 +85,9 @@ class Route
 
             # получить Пузыри
             '/api/catalog/buble' => [Api\Catalog\Bubble::class, 'getList'],
+
+            # Получить данные фильтра для текущего состояния структуры каталога
+            '/api/catalog/filter/get' => [Api\Catalog\Filter::class, 'getData'],
         #----------------  Каталог END ---------------------------#
 
 
