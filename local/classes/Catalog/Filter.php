@@ -54,6 +54,12 @@ class Filter extends Base
         ])->fetch()['ID'];
     }
 
+    /** Получение базовых свойств фильтрации, таких как бренд, категории, цены */
+    protected function getBaseFilterProps($elem_ids)
+    {
+        
+    }
+
     protected function getAllProps($prop_ids, $elem_ids)
     {
         $res = \Godra\Api\Iblock\IblockElementPropertyTable::getList([
@@ -104,8 +110,6 @@ class Filter extends Base
     }
 
 
-
-
     /**
      * Получить товары по коду раздела
      * @param $data['code'] $section_id_or_code
@@ -114,7 +118,6 @@ class Filter extends Base
      */
     public function getPropsValues()
     {
-
         $section_id = SectionTable::getList([
             'filter' => ['CODE' => $this->post_data['section_code']],
             'select' => ['ID'],
